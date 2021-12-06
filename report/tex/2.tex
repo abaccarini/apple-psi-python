@@ -1,24 +1,5 @@
 %!TEX root = ../main.tex
 
-\section{Threshold PSI with associated data} % (fold)
-\label{sec:threshold_psi_with_associated_data}
-
-We provide a brief overview of the authors' warmup problem denoted \textbf{threshold PSI with associated data}, or \textbf{tPSI-AD}. We refer to Table~\ref{tbl:notation} for all the relevant notation we use.
-
-Suppose the server has a set $X \of \U$ of size $n$, and the client has an unordered list of $m$ triples:
-\begin{align*}
-      \bar{Y} = \lp{\lp{y_1, id_1, ad_1} , \dots   \lp{y_m, id_m, ad_m}} \in \lp{\U \times \ID \times \D}^m,
-\end{align*}
-where $y \in \U$ is the hash of an image, a unique identifier $id \in \ID$, and some associated data $ad \in \D$. Identifiers are not assumed to be secret, and are treated as freshly sampled independent random bit strings. We introduce a threshold parameter $t$ known to both the client and server For tPSI-AD, we aim to design a protocol such that at termination, \begin{enumerate*}[label=(\roman*)]
-	\item the client only learns $\norm{X}$, 
-	\item the server only learns $\Yb_{id}$, and
-\end{enumerate*}
-\begin{itemize}
-	\item if $\norm{id \lp{\Yb \cap X}} < t$ then the server learns $id \lp{\Yb \cap X} \of \ID$, or
-	\item if $\norm{id \lp{\Yb \cap X}} \geq t$ then the server learns $\Yb\lb{id \lp{\Yb \cap X}}_{\lbr{id,ad}} \of \lp{\ID \times \D} $.
-\end{itemize}
-Namely, if the threshold is not met, the server learns the identifiers in $id \lp{\Yb \cap X}$, but no associated data. Otherwise, the server learns $\Yb\lb{id \lp{\Yb \cap X}}_{\lbr{id,ad}}$, which is the associated data for all the identifiers in the intersection.
-
 \begin{table}[t]
 \centering
 	\begin{tabular}{c l}
@@ -49,7 +30,25 @@ $\Yb\lb{id \lp{\Yb \cap X}}_{\lbr{id,ad}} \of \lp{\ID \times \D} $ & Set of asso
 	\label{tbl:notation}
 \end{table} 
 
-Naturally, the protocol should satisfy the following security goals:
+
+\section{Threshold PSI with associated data} % (fold)
+\label{sec:threshold_psi_with_associated_data}
+
+We provide a brief overview of the authors' warmup problem denoted \textbf{threshold PSI with associated data}, or \textbf{tPSI-AD}, and refer to Table~\ref{tbl:notation} for all relevant notation.
+
+Suppose the server has a set $X \of \U$ of size $n$, and the client has an unordered list of $m$ triples:
+\begin{align*}
+      \bar{Y} = \lp{\lp{y_1, id_1, ad_1} , \dots   \lp{y_m, id_m, ad_m}} \in \lp{\U \times \ID \times \D}^m,
+\end{align*}
+where $y \in \U$ is the hash of an image, a unique identifier $id \in \ID$, and some associated data $ad \in \D$. Identifiers are not assumed to be secret, and are treated as freshly sampled independent random bit strings. We introduce a threshold parameter $t$ known to both the client and server.  For tPSI-AD, we aim to design a protocol such that at termination, \begin{enumerate*}[label=(\roman*)]
+	\item the client only learns $\norm{X}$, 
+	\item the server only learns $\Yb_{id}$, and
+\end{enumerate*}
+\begin{itemize}
+	\item if $\norm{id \lp{\Yb \cap X}} < t$ then the server learns $id \lp{\Yb \cap X} \of \ID$, or
+	\item if $\norm{id \lp{\Yb \cap X}} \geq t$ then the server learns $\Yb\lb{id \lp{\Yb \cap X}}_{\lbr{id,ad}} \of \lp{\ID \times \D} $.
+\end{itemize}
+Namely, if the threshold is not met, the server learns the identifiers in $id \lp{\Yb \cap X}$, but no associated data. Otherwise, the server learns $\Yb\lb{id \lp{\Yb \cap X}}_{\lbr{id,ad}}$, which is the associated data for all the identifiers in the intersection. The protocol should satisfy the following set of security goals:
   \begin{itemize}
     \item The server cannot recover the user's matched photos without exceeding the threshold $t$.
     \item False positives are impossible.

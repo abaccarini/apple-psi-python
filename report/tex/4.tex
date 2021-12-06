@@ -99,14 +99,14 @@ The intuition for Step~\ref{alg_step:dhsr} is that the client is applying the DH
 \begin{algorithm}[H]
 \DontPrintSemicolon
 Initialize empty set $\texttt{{SHARES}}$ and an empty list $\texttt{IDLIST}$.\;
-\ForEach{$(id, Q, ct, rct)$ \text{\received}}{
+% \ForEach{$(id, Q, ct, rct)$ \text{\received}}{
     Append $id$ to \texttt{IDLIST}.\;
     Compute $\hat{S} = Q^{\alpha} \in \Gdh$.\;
     Set $rkey = \dec (H'(\hat{S}), ct)$.\;
     Set $(adct, sh) = \dec (rkey, rct)$.\;
     If either decryptions ``fails'', $y$ is a non-match, and ignore the voucher. \;
     Otherwise, we found a match and add $(id, adct, sh)$ to $\texttt{SHARES}$.\;
-} 
+% } 
 Let $t'$ denote the number of \emph{unique} shares in $\texttt{SHARES}$, and $t'$ should equal the size of $id (\bar{Y} \cap X)$. \; 
 \If{ $t' < t$}{
     let $\texttt{OUTSET}$ be the set of identifiers in $\texttt{SHARES}$.
@@ -119,9 +119,11 @@ Let $t'$ denote the number of \emph{unique} shares in $\texttt{SHARES}$, and $t'
 }
 } 
 Output $\texttt{IDLIST}$ and $\texttt{OUTSET}$.\; 
-\caption{{\sf S-Process}} 
+\caption{{\sf S-Process}$(id, Q, ct, rct)$} 
 \label{algo:s_process}
 \end{algorithm}
+\noindent
+This completes the system description.
 
 Since the original protocol relies on slightly different primitives than the version provided in this paper, we argue its correctness below.
 \begin{theorem}[Correctness]

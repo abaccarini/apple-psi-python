@@ -23,7 +23,7 @@ We define the following cryptographic primitives and their respective constructi
 
 
 
-\noindent \textbf{Diffie-Hellman Random Self Reducability}: We introduce a particularly useful property that the protocol relies upon as follows.
+\noindent \textbf{Diffie-Hellman Random Self Reducability}: We introduce a particularly useful property for the protocol as follows.
 \begin{definition}
 \label{def:dh_tup}
  Let $ \G $ be a group of prime order $q$ with a fixed generator $G \in \G$, and suppose $\lp{L, U, V} \in \G^3$. Then triple $\lp{L,U,V}$ is a \textbf{Diffie-Hellman (DH) tuple} if there exists an $\alpha \in \F_q$ such that $L = G^\alpha$ and $V = U^\alpha$.
@@ -34,8 +34,8 @@ We work through the arithmetic of a partial random self reduction for DH tuples 
 Given a triple $\lp{L, T, P} \in \G^3$, we
 \begin{itemize}
 	\item choose a random $\beta, \gamma \in \F_q$,
-	\item compute $Q = T^\beta \cdot G^\gamma$ and $S = P^\beta \cdot L^\gamma$.
-	\item output $\lp{L,Q,S}$
+	\item compute $Q = T^\beta \cdot G^\gamma$ and $S = P^\beta \cdot L^\gamma$,
+	\item output $\lp{L,Q,S}$.
 \end{itemize}
 \end{definition}
 \noindent

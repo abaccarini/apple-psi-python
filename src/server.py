@@ -1,3 +1,4 @@
+import timeit
 import cryptography
 from crypto_ops import *
 from shamir import *
@@ -6,20 +7,15 @@ from hash_table import *
 
 class Server:
     def __init__(self, G, dh_prime, sh_prime, X, n_prime, t):
+        start = timeit.default_timer()
         self.nonce = os.urandom(12) #96 bit nonce (12 * 8 = 96)
         self.G = G
         self.dh_prime = dh_prime
         self.sh_prime = sh_prime
         self.n_prime = n_prime
         self.t = t
-        self.ht = HashTable(self.n_prime)
         self.t_prime = 0
-        self.alpha = random.randint(1,dh_prime - 1)
-        self.L = pow(self.G,self.alpha,self.dh_prime)
-        
-        self.SHARES = []
-        self.IDLIST = []
-
+        self.ht = HashTable(self.n_prime)
         for i, x_i,in enumerate(X):
             self.ht.add(x_i, i)
         # ensuring every bucket has at most one item
@@ -28,7 +24,13 @@ class Server:
                 pass
             else:
                 print('bucket BAD -- INCRREASE TABLE SIZE')
+        self.alpha = random.randint(1,dh_prime - 1)
+        self.L = pow(self.G,self.alpha,self.dh_prime)
+        self.SHARES = []
+        self.IDLIST = []
         self.pdata = self.generate_pdata()
+        stop = timeit.default_timer() 
+        print('S-Init(ms): ', (stop - start)*1000) 
 
     def generate_pdata(self):
         p_array = []
@@ -40,7 +42,8 @@ class Server:
         return p_array
     
     def process_voucher(self, voucher, client_aad):
-        
+        start = timeit.default_timer()
+
         self.IDLIST.append(voucher.id)
         S_hat = pow(voucher.Q, self.alpha, self.dh_prime)
         H_prime_of_S_hat = H_prime(S_hat)
@@ -60,19 +63,18 @@ class Server:
         else:
             print("\tone decryption failed, discarding voucher")
         
-        
-        # print("t_prime = "+str(self.t_prime)) 
+        print("\tt_prime = "+str(self.t_prime)) 
         if self.t_prime < self.t:
             print("\tThreshold not met")
             OUTSET = [item[0] for item in self.SHARES]
+            stop = timeit.default_timer() 
+            print('S-Process (ms): ', (stop - start)*1000) 
             return self.IDLIST, OUTSET
+
         else:
             print("\tThreshold exceeded, reconstructing adkey")
             distinct_shares = [(int(item[0].decode('utf-8')), int(item[1].decode('utf-8')) )  for item in set( [(item[2]) for item in self.SHARES])]
             adkey = recover_secret(distinct_shares, self.t)
-            # print("adkey")
-            # print(adkey)
-            # converting to bytes 
             adkey_bytes = adkey.to_bytes(16, 'big')
             id_adcts = [(item[0], item[1]) for item in self.SHARES]
             OUTSET = []
@@ -85,4 +87,6 @@ class Server:
                     print('voucher invalid') 
                     pass
 
+            stop = timeit.default_timer() 
+            print('S-Process (ms): ', (stop - start)*1000) 
             return self.IDLIST, OUTSET

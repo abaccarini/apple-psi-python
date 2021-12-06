@@ -1,4 +1,6 @@
 import string
+import timeit
+
 from crypto_ops import *
 from nnhash import *
 from shamir import *
@@ -9,6 +11,7 @@ def id_generator(size=6, chars=string.ascii_lowercase + string.digits):
 
 class Client:
     def __init__(self, G, dh_prime, L, pdata, t, sh_prime, nonce, input_dir, input_im=None):
+        start = timeit.default_timer()
         self.L = L
         self.G = G
         self.dh_prime = dh_prime
@@ -20,14 +23,22 @@ class Client:
         self.fkey = generate_fkey()
         self.adkey_16 = int.from_bytes(self.adkey, byteorder='big')
         self.sh_coeff = coeff(t, self.adkey_16, sh_prime)
+        stop = timeit.default_timer() 
+        print('C-init (ms): ', (stop - start)*1000) 
         #generating random bytestring for client
         self.client_aad = os.urandom(4)
         test_inputs = os.listdir(input_dir)
+        start = timeit.default_timer()
         if input_im is None:
             self.Y = generate_hash_list(test_inputs, input_dir) 
         else:
             self.Y = [generate_hash(input_im[0], input_dir)]
         self.triples = self.triple_generation()
+        stop = timeit.default_timer() 
+        print('C-Triple (ms): ', (stop - start)*1000) 
+
+        
+
     
     def triple_generation(self):
         id_seq = 0
@@ -42,6 +53,8 @@ class Client:
         return triples
     
     def generateVoucher(self, trip):
+        start = timeit.default_timer()
+
         adct = encrypt(self.adkey, trip.ad, self.nonce, self.client_aad)
         x = prf_F(self.fkey, trip.id, self.sh_prime)
         fox = polynom(x, self.sh_coeff)
@@ -57,4 +70,7 @@ class Client:
         Hp_o_S = H_prime(S)
         ct = encrypt(Hp_o_S, rkey, self.nonce, self.client_aad)
         voucher = Voucher(trip.id, Q, ct, rct)
+        stop = timeit.default_timer() 
+        print('C-Gen-Voucher (ms): ', (stop - start)*1000) 
+
         return voucher

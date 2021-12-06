@@ -13,9 +13,9 @@ input_dir = 'inputs/'
 
 
 def main(dh_num, threshold):
+    print("------------------------")
 
     test_images = os.listdir(image_dir)
-    print(len(test_images))
     X = generate_hash_list(test_images, image_dir)
     dh1 = DiffieHellman(group=dh_num)
     p = dh1._prime #from group 1
@@ -27,8 +27,6 @@ def main(dh_num, threshold):
     print("Initalizing server...")
     server = Server(G, p, sh_prime, X, n_prime, t)
     
-    print(server.ht.array)
-    
     print("Initalizing client...")
     client = Client(G, p, server.L, server.pdata, t, sh_prime, server.nonce, input_dir)
 
@@ -36,26 +34,31 @@ def main(dh_num, threshold):
     print("---\nExperiment 1: client submits y in X")
 
     test_voucher = client.generateVoucher(client.triples[0])
-    print(server.process_voucher(test_voucher, client.client_aad))
+    IDLIST, OUTSET = server.process_voucher(test_voucher, client.client_aad)
+    print("IDLIST ", IDLIST, "\nOUTSET ", OUTSET)
 
 
     print("---\nExperiment 2: client submits y in X again")
 
     test_voucher = client.generateVoucher(client.triples[0])
-    print(server.process_voucher(test_voucher, client.client_aad))
+    IDLIST, OUTSET = server.process_voucher(test_voucher, client.client_aad)
+    print("IDLIST ", IDLIST, "\nOUTSET ", OUTSET)
 
     print("\n---\nExperiment 3: client submits y in X, but with a different id")
     test_voucher = client.generateVoucher(client.triples[1])
-    print(server.process_voucher(test_voucher, client.client_aad))
+    IDLIST, OUTSET = server.process_voucher(test_voucher, client.client_aad)
+    print("IDLIST ", IDLIST, "\nOUTSET ", OUTSET)
 
     print("\n---\nExperiment 4: client submits y not in X")
     test_voucher = client.generateVoucher(client.triples[2])
-    print(server.process_voucher(test_voucher, client.client_aad))
+    IDLIST, OUTSET = server.process_voucher(test_voucher, client.client_aad)
+    print("IDLIST ", IDLIST, "\nOUTSET ", OUTSET)
 
     print("\n---\nExperiment 5: client submits different y in X")
     test_voucher = client.generateVoucher(client.triples[3])
-    print(server.process_voucher(test_voucher, client.client_aad))
-    print("\n---")
+    IDLIST, OUTSET = server.process_voucher(test_voucher, client.client_aad)
+    print("IDLIST ", IDLIST, "\nOUTSET ", OUTSET)
+    print("\n------------------------")
     return 0
 
 
@@ -79,6 +82,7 @@ def single_image(dh_num, threshold, input_image):
     client = Client(G, p, server.L, server.pdata, t, sh_prime, server.nonce, input_dir, input_image)
 
     test_voucher = client.generateVoucher(client.triples[0])
+    print("S-Process output : ")
     print(server.process_voucher(test_voucher, client.client_aad))
 
     return 0

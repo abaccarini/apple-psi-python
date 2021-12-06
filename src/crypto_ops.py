@@ -1,14 +1,7 @@
-import os, random
-# from cryptography import *
+import os, random, hmac, hashlib
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
-
-import hmac
-import hashlib
-
-# from shamir import *
-# Salts should be randomly generated
 
 def encrypt(key, message, nonce, aad):
     if type(message) is str:

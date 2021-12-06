@@ -1,8 +1,8 @@
+import string
 from crypto_ops import *
 from nnhash import generate_hash_list
 from shamir import *
 from structs import *
-import string
 
 def id_generator(size=6, chars=string.ascii_lowercase + string.digits):
     return ''.join(random.choice(chars) for _ in range(size))

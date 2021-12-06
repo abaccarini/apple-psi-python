@@ -1,11 +1,11 @@
-import numpy as np
-import os, random, string
+import os
 import sys 
 import argparse
 from nnhash import *
 from server import Server
 from client import Client
-from diffiehellman import DiffieHellman
+# import diffiehellman
+from diffiehellman import *
 from structs import *
 image_dir = 'images/'
 input_dir = 'inputs/'
@@ -28,7 +28,7 @@ def main(dh_num, threshold):
     client = Client(G, p, server.L, server.pdata, t, sh_prime, server.nonce, input_dir)
 
 
-    print("\n---\nExperiment 1: client submits y in X")
+    print("---\nExperiment 1: client submits y in X")
 
     test_voucher = client.generateVoucher(client.triples[0])
     print(server.process_voucher(test_voucher, client.client_aad))
@@ -44,7 +44,7 @@ def main(dh_num, threshold):
     print("\n---\nExperiment 4: client submits differet y in X")
     test_voucher = client.generateVoucher(client.triples[3])
     print(server.process_voucher(test_voucher, client.client_aad))
-    
+    print("\n---")
     return 0
 
 
@@ -80,9 +80,4 @@ if __name__ == '__main__':
     
     
     args = parser.parse_args()
-    # print(args)
-    # options = vars(args)
-    # print('Provided arguments: ' + str(options))
-    # print(args.dh_num)
-    # print(args.thresh)
     sys.exit(main(args.dh_num, args.thresh)) 

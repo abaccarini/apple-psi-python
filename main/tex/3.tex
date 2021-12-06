@@ -4,28 +4,39 @@
 \section{Building Blocks} % (fold)
 \label{sec:building_blocks}
 
-
-Cryptographic primitives:
+We define the following cryptographic primitives and their respective constructions below:
 \begin{itemize}
-	\item $\lp{\enc, \dec}$ denotes  a symmetric encryption scheme with  key space $\K'$ and satisfies standard symmetric key security properties (AES128-GCM).
-	\item $E(\F_p)$ is an elliptic curve of prime order $q$, with $G$ as a fixed generator of $E(\F_p)$. Assume Decision Diffie-Hellman (DDH) holds in $E(\F_p)$ (NIST P256).
-	\item $H : \U \to E(\F_p) \setminus \lbr{\O}$ is a hash function modeled as as random oracle.
-	\item $H' : E(\F_p) \to \K'$ is secure key derivation function; the uniform distribution on $E(\F_p) $ mapped to an ``almost'' uniform distribution on $\K'$ (HKDF, based on HMAC)
-	\item Shamir secret sharing on an element of $\K'$ to obtain shares in $\F_{\text{Sh}}^2$ for some field $\F_{\text{Sh}}$ that is sufficiently large such that when choosing $t+1$ random elements from $\F_{\text{Sh}}$, the probability of a collision is low.
+	\item $\lp{\enc, \dec}$ is a symmetric encryption scheme with  key space $\K'$ and provides IND-CPA security (see \cite{katz2014introduction} \textsection3.4.2) and \emph{random key robustness}, which states that if $k \neq k'$ are independent random keys, then $\dec(\enc(k,m), k')$ should fail with high probability. AES128-GCM satisfies both requirements.
 
-	\item A pseudorandom function (PRF) $F : \K'' \times \mathcal{ID} \to \F_{\text{Sh}}^2 \times \X \times \R$, where the sets $\X$ and $\R$ are the domain and range of a detectable hash function, respectively (HMAC).
+
+
+	\item $\Gdh$ is a Diffie-Hellman group of prime order $q$ with $G$ as a fixed generator and Decision Diffie-Hellman (DDH) assumption holds. We use Group 14 with a 2048-bit modulus, and~$G = 2$.
+
+	\item $H : \U \to \Gdh$ is a hash function modeled as as random oracle. This is implemented using HMAC with SHA256, and converting the output digest to an integer $\pmod q$.
+	\item $h : \U \to \lbr{1,\dots,\eta}$ is a random hash. This is implemented using  SHA256 and converting the output digest to an integer $\pmod \eta$.
+
+	\item $H' : \Gdh \to \K'$ is secure key derivation function; the uniform distribution on $\Gdh$ mapped to an ``almost'' uniform distribution on $\K'$. This is implemented using HKDF with SHA256 to produce a 128-bit key.
+	\item Shamir secret sharing on an element of $\K'$ to obtain shares in $\F_{\text{Sh}}$ for some field $\F_{\text{Sh}}$ that is sufficiently large such that when choosing $t+1$ random elements from $\F_{\text{Sh}}$, the probability of a collision is low.
+
+	\item A pseudorandom function (PRF) $F : \K'' \times \mathcal{ID} \to \F_{\text{Sh}}$. This is also  constructed using HMAC with SHA256, and converting the output digest to an integer $\pmod \sh$.
 \end{itemize}
 
-\subsection{The Diffie-Hellman random self reduction} % (fold)
-\label{sub:the_diffie_hellman_random_self_reduction}
 
 
-\subsection{Detectable hash functions} % (fold)
-\label{sub:detectable_hash_functions}
-
-
-
-\subsection{Cuckoo Tables (Cuckoo Hashing)} % (fold)
-\label{sub:cuckoo_tables}
-
-We provide a brief overview of Cuckoo Hashing, which is a technique designed for resolving collisions in hash tables and provides a worst-case $\Theta(1)$ lookup and deletion time.
+\noindent \textbf{Diffie-Hellman Random Self Reducability}: 
+Let $ \G $ be a group of prime order $q$ with a fixed generator $G \in \G$, and suppose $\lp{L, U, V} \in \G^3$. Then triple $\lp{L,U,V}$ is a \textbf{Diffe-Hellman (DH) tuple} if there exists an $\alpha \in \F_q$ such that $L = G^\alpha$ and $V = U^\alpha$.
+\noindent
+We work through the arithmetic of a partial random self reduction for DH tuples as follows. Given a triple $\lp{L, T, P} \in \G^3$, we
+\begin{itemize}
+	\item choose a random $\beta, \gamma \in \F_q$,
+	\item compute $Q = T^\beta \cdot G^\gamma$ and $S = P^\beta \cdot L^\gamma$.
+	\item output $\lp{L,Q,S}$
+\end{itemize}
+The transformation $\lp{L, T, P} \to \lp{L, Q, S}$ has the following properties:
+\begin{itemize}
+	\item If $\lp{L, T, P}$ is a DH tuple where $L = G^\alpha$, then $Q$ is a fresh uniformly sampled element in $\G$, and 
+	\begin{align*}
+	S =  P^\beta \cdot L^\gamma = \lp{T^\alpha}^\beta \cdot \lp{G^\alpha}^\gamma =  \lp{T^\beta \cdot G^\gamma}^\alpha = Q^\alpha.
+	\end{align*}
+	\item If $\lp{L, T, P}$ is not a DH tuple, then  $(Q,S)$ is a fresh uniformly sampled pair in $\G^2$.
+\end{itemize}

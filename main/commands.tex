@@ -5,6 +5,7 @@
 
 
 
+\renewcommand\labelitemi{--}
 
 
 
@@ -57,12 +58,14 @@
 \newcommand{\Y}{\mathcal{Y}}
 \newcommand{\I}{\mathcal{I}}
 \newcommand{\E}{\mathcal{E}}
+\newcommand{\ID}{\mathcal{ID}}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\U}{\mathcal{U}}
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\T}{\mathbb{T}}
 \renewcommand{\S}{\mathbb{S}}
 \newcommand{\G}{\mathbb{G}}
+\newcommand{\Gdh}{\mathbb{G}_{\textsc{dh}}}
 \newcommand{\N}{\mathcal{N}}
 \newcommand{\NP}{\mathcal{NP}}
 \renewcommand{\P}{\mathcal{P}}
@@ -89,12 +92,13 @@
 \newcommand{\relu}{\text{ReLU}}
 \newcommand{\enc}{\text{Enc}}
 \newcommand{\dec}{\text{Dec}}
+\newcommand{\sh}{\text{Sh}}
 
 \newcommand{\Yb}{\bar{Y}}
 \newcommand{\sm}{\setminus}
 
 
-\newcommand{\Mod}{\ \mathrm{mod}\ }
+\renewcommand{\mod}{\ \mathrm{mod}\ }
 
 
 \renewcommand{\And}{\textbf{and} }
@@ -114,18 +118,24 @@
   \ignorespacesafterend
 } 
 
-
+\lstset{
+  basicstyle=\ttfamily,
+}
 
 \makeatletter                                                              
+% \SetAlgorithmName{Protocol}{protocol}{List of Protocols}
+\renewcommand*{\listalgorithmcfname}{List of Protocols}
+\renewcommand*{\algorithmcfname}{Protocol}
+\renewcommand*{\algorithmautorefname}{protocol}
+% \renewcommand{\ALG@name}{Protocol}                                             
+% \makeatother
+% \renewcommand{\algorithmicforall}{\textbf{for each}}
 
-\renewcommand{\ALG@name}{Protocol}                                             
-\makeatother
-\renewcommand{\algorithmicforall}{\textbf{for each}}
-
-\makeatletter
-\newcommand{\LINEFORALL}[3][default]{%
-  \ALC@it\algorithmicforall\ #2\ \algorithmicdo%
-  \ALC@com{#1}\ #3%
-}
-\newcommand{\LINEENDFOR}{\ALC@it\algorithmicendfor}
-\makeatother
+% \makeatletter
+% \newcommand{\LINEFORALL}[3][default]{%
+%   \ALC@it\algorithmicforall\ #2\ \algorithmicdo%
+%   \ALC@com{#1}\ #3%
+% }
+% \newcommand{\LINEENDFOR}{\ALC@it\algorithmicendfor}
+% \makeatother
+\newcommand{\received}{\text{received}}

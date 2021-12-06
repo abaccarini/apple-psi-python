@@ -3,48 +3,199 @@
 \section{Threshold PSI-AD using the DH random self reduction} % (fold)
 \label{sec:threshold_psi_ad_using_the_dh_random_self_reduction}
 
-
-\subsection{tPSI-AD protocol walkthrough} % (fold)
-\label{sub:tpsi_ad_protocol_walkthrough}
-
-
-We now walk through every step up the warm-up tPSI-AD protocol outlined in \cite{bhowmick2021apple}. We let $t$ denote the threshold, $m$ be an upper bound on the number of triples the client will process, and $n = \norm{X}$.
-
-
-
-The specific protocol we are implementing occurs in four phases: {\sf S-Init}, {\sf C-Init}, {\sf C-Gen-Voucher}, and {\sf S-Process}, where {\sf S} and {\sf C} refer to the Server and Client, respectively.
+We now walk through every step up the warm-up tPSI-AD protocol outlined in \cite{bhowmick2021apple}. The specific version we are implementing occurs in four phases: {\sf S-Init}, {\sf C-Init}, {\sf C-Gen-Voucher}, and {\sf S-Process}, where {\sf S} and {\sf C} refer to the Server and Client, respectively.
 
 \begin{algorithm}[H]
-\algcaption{$\lp{pdata, skey} \gets \text{\sf S-Init}(X)$}\label{alg:server_init}
-\begin{algorithmic}[1]
-\State
-\end{algorithmic}
+\DontPrintSemicolon
+  Remove any duplicates from $X$, and let $n = \norm{X}$.
+
+     Construct a hash table $T$:\;
+    {\begin{itemize}
+          \item Let $n' \geq n$ be the size of the table, where  $n'$ is sufficiently larger than $n$ as to minimize collisions.
+          \item Choose a hash function $h : \U \to \lbr{1,\dots,n'}$.
+          \item Insert elements of $X$ into $T$, where each cell should have at most one element.
+        \end{itemize}}
+   Choose a random nonzero $\alpha \in \F_q$, compute $L = G^\alpha \in \Gdh$\;
+     
+     \For{$i = 1$ to $n'$}{
+     \If{$T[i]$ is non-empty}{
+Set $P_i = {H(T[i])^{\alpha}} \in \Gdh  $, where $T[i] \in X \of \U$, and $H: \U \to \Gdh$.  \;     }
+\Else{
+        Choose a random $P_i \in \Gdh $.
+}
+
+   }
+
+    Set $pdata = \lp{L, P_1, \dots, P_{n'}}$.
+
+
+\caption{ {\sf S-Init}$(X)$}
+\label{algo:s_init}
 \end{algorithm}
 
 
 
-
-
+  
+ %   \medskip \noindent
+ % {\sf C-Init}: 
+ %  \begin{enumerate}
+ %    \item Obtain $pdata$ from the server.
+ %      \item Generate $adkey \gets \K'$ for  encryption scheme $\lp{\enc, \dec}$.
+ %      \item Generate $fkey \gets \K''$ for the PRF $F: \K'' \times \ID \to \F_{\sh}$.
+ %      \item Initialize threshold {Shamir secret sharing} for $adkey$:
+ %      \begin{align*}
+ %      f(x) = a_0 + a_1x + a_2x + \dots + a_{t-1}x^{t-1},
+ %      \end{align*}
+ %      where $a_0 = adkey$ is the secret.
+ %  \end{enumerate}
+  
 \begin{algorithm}[H]
-\algcaption{$ckey \gets \text{\sf C-Init}(pdata)$}\label{alg:client_init}
-\begin{algorithmic}[1]
-\State
-\end{algorithmic}
+\DontPrintSemicolon
+     Obtain $pdata$ from the server.\;
+
+       Generate $adkey \gets \K'$ for  encryption scheme $\lp{\enc, \dec}$.\;
+       Generate $fkey \gets \K''$ for the PRF $F: \K'' \times \ID \to \F_{\sh}$.\;
+       Initialize threshold {Shamir secret sharing} for $adkey$:
+      \begin{align*}
+      f(x) = a_0 + a_1x + a_2x + \dots + a_{t-1}x^{t-1},
+      \end{align*}
+      where $a_0 = adkey$ is the secret.\;
+
+\caption{  {\sf C-Init}$()$}
+\label{algo:c_init}
 \end{algorithm}
 
 
 \begin{algorithm}[H]
-\algcaption{$voucher  \gets \text{\sf C-Gen-Voucher}(pdata, ckey, \lp{y, id, ad})$}\label{alg:client_vouch}
-\begin{algorithmic}[1]
-\State
-\end{algorithmic}
+\DontPrintSemicolon
+      Compute
+        \begin{align*}
+               adct \gets \enc \lp{adkey, ad},
+        \end{align*}        
+        and ensure all $adct$ must be the same length.\;
+      Compute $x = F(fkey, id) \in \F_{\sh}$.\;
+
+      Generate a share $sh = \lp{x, f(x)} \in \F_{\sh}$ of $adkey$. This guarantees duplicate triples with the same $id$ will produce the same $sh$).\;
+
+      Choose a random key $rkey \gets \K'$ and compute 
+      \begin{align*}
+      rct \gets \enc \lp{rkey, \lp{adct, sh}}. 
+      \end{align*}
+
+      Compute $w = h(y) \in \lbr{1,\dots,n'}$.\;
+
+      Sample random  $\beta, \gamma \in \F_q$, and use $P_w,L$ from $pdata$ to compute:
+     \begin{align*}
+     Q = H(y)^{\beta} \cdot G^{\gamma} \text{ and } S = P_w^{\beta} \cdot L^{\gamma},
+     \end{align*}
+     where if $y = T[w]$, then $P_w = H(y)^{\alpha}$ and $S = Q^{\alpha}$. 
+ {    
+      The client is applying the DH random self reduction to the triple $\lp{L, H(y), P_w}$. If $y = T[w]$, then $P_w = H(y)^\alpha$ and $(Q,S)$ satisfies $S = Q^\alpha$. Otherwise, $(Q,S)$ are random elements of $\Gdh$.}
+
+
+   Compute $ct \gets \enc \lp{H'(S), rkey},$ where $H' : \Gdh \to \K'$.\;
+      Send $voucher = (id, Q, ct, rct)$ to the server.\;
+
+
+\caption{  {\sf C-Gen-Voucher}$(y, id, ad)$}
+\label{algo:c_gen_voucher}
 \end{algorithm}
+
+
+ %   \medskip \noindent
+ % {\sf C-Gen-Voucher}: 
+ %  \begin{enumerate}
+
+ %     \item Encrypt $ad$ as $adct \gets \enc \lp{adkey, ad},$ and all $adct$ must be the same length.
+ %     \item Compute $x = F(fkey, id) \in \F_{\sh}$.
+
+ %     \item Generate a share $sh = \lp{x, f(x)} \in \F_{\sh}$ of $adkey$ (guarantees duplicate triples with the same $id$ will produce the same $sh$).
+
+
+ %     \item Choose a random key $rkey \gets \K'$ and compute $rct \gets \enc \lp{rkey, \lp{adct, sh}}$.%concatenation?
+
+
+ %     \item Compute $w = h(y) \in \lbr{1,\dots,n'}$.
+ %     \item Sample random  $\beta, \gamma \in \F_q$, and use $P_w,L$ from $pdata$ to compute:
+ %     \begin{align*}
+ %     Q = H(y)^{\beta} \cdot G^{\gamma} \text{ and } S = P_w^{\beta} \cdot L^{\gamma},
+ %     \end{align*}
+ %     where if $y = T[w]$, then $P_w = H(y)^{\alpha}$ and $S = Q^{\alpha}$. The client is applying the DH random self reduction to the triple $\lp{L, H(y), P_w}$. If $y = T[w]$, then $P_w = H(y)^\alpha$ and $(Q,S)$ satisfies $S = Q^\alpha$. Otherwise, $(Q,S)$ are random elements of $\Gdh$.
+ %  \item Compute $ct \gets \enc \lp{H'(S), rkey},$ where $H' : \Gdh \to \K'$.
+ %     \item Send $voucher = (id, Q, ct, rct)$ to the server.
+ %   \end{enumerate} 
+  
+
 
 
 \begin{algorithm}[H]
-\algcaption{$\text{\sf S-Process}(pdata, skey, voucher)$}\label{alg:server_process}
-\begin{algorithmic}[1]
-\State
-\end{algorithmic}
-\end{algorithm}
+\DontPrintSemicolon
+Initialize empty set $\texttt{{SHARES}}$ and an empty list $\texttt{IDLIST}$.\;
+\ForEach{$(id, Q, ct, rct)$ \text{\received}}{
+    Append $id$ to \texttt{IDLIST}.\;
+    Compute $\hat{S} = Q^{\alpha} \in \Gdh$.\;
+    Set $rkey = \dec (H'(\hat{S}), ct)$.\;
+    Set $(adct, sh) = \dec (rkey, rct)$.\;
+    If either decryptions ``fails'', $y$ is a non-match, and ignore the voucher. \;
+    Otherwise, we found a match and add $(id, adct, sh)$ to $\texttt{SHARES}$.\;
+} 
+Let $t'$ denote the number of \emph{unique} shares in $\texttt{SHARES}$, and $t'$ should equal the size of $id (\bar{Y} \cap X)$. \; 
+\If{ $t' < t$}{
+    let $\texttt{OUTSET}$ be the set of identifiers in $\texttt{SHARES}$
+}\ElseIf{$t' \geq t$}{
+    Use $t$ shares to reconstruct $adkey \in \K'$.\;
+    Initialize $\texttt{OUTSET} = \lbr{\emp}$.\;
+\ForEach{triple $(id, adct, sh) \in \texttt{SHARES}$}{
+    compute $ad = \dec (adkey, adct)$. \;
+    If it fails, discard the voucher. Otherwise, add $(id,ad )$ to $\texttt{OUTSET}$.\;
+}
+} 
+Output $\texttt{IDLIST}$ and $\texttt{OUTSET}$.\; 
+\caption{{\sf S-Process}} 
+\label{algo:s_process}
 
+\end{algorithm}
+Since the original protocol relies on slightly different primitives than the version provided in this paper, we argue its correctness below.
+\begin{theorem}[Correctness]
+Suppose the client and serve honestly adhere to Protocols~\ref{algo:s_init},~\ref{algo:c_init},~\ref{algo:c_gen_voucher},~and~\ref{algo:s_process}, and the following assumptions hold:
+\begin{enumerate}[label=(\roman*)]
+    \item  $H' : \Gdh \to \K'$ is a secure key derivation function,
+    \item $(\emph{\enc}, \emph{\dec})$ is random key robust, and
+    \item $F$ is a secure PRF.
+\end{enumerate}
+The the server learns the required tPSI-AD output with high probability.
+\end{theorem}
+
+
+ %   \medskip \noindent
+ % {\sf S-Process}: 
+
+ %  \begin{enumerate}
+ %    \item Initialize empty set $\texttt{{SHARES}}$ and an empty list $\texttt{IDLIST}$.
+ %    \item For each voucher $(id, Q, ct, rct)$ received, do:
+ %    \begin{itemize}
+ %      \item Append $id$ to \texttt{IDLIST}.
+ %      \item Compute $\hat{S} = Q^{\alpha} \in \Gdh$, 
+ %      \item Set $rkey = \dec (H'(\hat{S}), ct)$.
+ %      \item Set $(adct, sh) = \dec (rkey, rct)$.
+ %      \item If either decryptions ``fails'', $y$ is a non-match, and ignore the voucher. 
+ %      \item Otherwise, we found a match and add $(id, adct, sh)$ to $\texttt{SHARES}$.
+ %    \end{itemize}
+
+
+
+
+
+ %    \item Let $t'$ denote the number of \emph{unique} shares in $\texttt{SHARES}$, and $t'$ should equal the size of $id (\bar{Y} \cap X)$. 
+ %    \begin{itemize}
+ %      \item If $t' < t$, let $\texttt{OUTSET}$ be the set of identifiers in $\texttt{SHARES}$.
+ %      \item If $t' \geq t$, do:
+ %      \begin{itemize}
+ %        \item Use $t$ shares to reconstruct $adkey \in \K'$.
+ %        \item Initialize $\texttt{OUTSET} = \lbr{\emp}$.
+ %        \item For each triple $(id, adct, sh) \in \texttt{SHARES}$, compute $ad = \dec (adkey, adct)$. If it fails, discard the voucher. Otherwise, add $(id,ad )$ to $\texttt{OUTSET}$.
+ %      \end{itemize}
+ %      \item Output $\texttt{IDLIST}$ and $\texttt{OUTSET}$.
+ %    \end{itemize}
+ %  \end{enumerate}
+  

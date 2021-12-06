@@ -1,5 +1,5 @@
-from h_prime_hkdf import *
-from hash_func import *
+from crypto_ops import *
+from nnhash import generate_hash_list
 from shamir import *
 from structs import *
 import string
@@ -17,7 +17,7 @@ class Client:
         self.nonce = nonce
         self.n_prime = len(pdata)
         self.sh_prime = sh_prime
-        self.adkey = generate_adkey()
+        self.adkey = generate_adkey(self.dh_prime)
         self.fkey = generate_fkey()
         self.adkey_16 = int.from_bytes(self.adkey, byteorder='big')
         self.sh_coeff = coeff(t, self.adkey_16, sh_prime)
@@ -47,13 +47,9 @@ class Client:
     
     def generateVoucher(self, trip):
         adct = encrypt(self.adkey, trip.ad, self.nonce, self.client_aad)
-        x = prf_F(fkey, trip.id, self.sh_prime)
+        x = prf_F(self.fkey, trip.id, self.sh_prime)
         fox = polynom(x, self.sh_coeff)
-        # print("x")
-        # print(x)
-        # print("fox")
-        # print(fox)
-        rkey = generate_rkey()
+        rkey = generate_rkey(self.dh_prime)
         # x and fox are ints, adct is bytes, need to convert 
         rct = (encrypt(rkey, adct, self.nonce, self.client_aad),
                encrypt(rkey, str(x), self.nonce, self.client_aad), 
@@ -61,7 +57,7 @@ class Client:
     
         w = ht_hash(trip.y, self.n_prime)
         P_w = self.pdata[w]
-        H_y = H_to_group(trip.y)
+        H_y = H_to_group(trip.y, self.dh_prime)
         Q, S = compute_Q_S(self.G, P_w, self.L, self.dh_prime, H_y)
         Hp_o_S = H_prime(S)
         ct = encrypt(Hp_o_S, rkey, self.nonce, self.client_aad)

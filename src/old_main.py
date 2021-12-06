@@ -13,8 +13,7 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from nnhash import *
 from structs import *
 from hash_table import *
-from hash_func import *
-from h_prime_hkdf import *
+from crypto_ops import *
 from Crypto.Util import number
 
 from diffiehellman import DiffieHellman

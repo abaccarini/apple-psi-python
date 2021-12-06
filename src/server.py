@@ -1,6 +1,5 @@
 import cryptography
-from h_prime_hkdf import *
-from hash_func import *
+from crypto_ops import *
 from shamir import *
 from structs import *
 from hash_table import *
@@ -14,7 +13,7 @@ class Server:
         self.n_prime = n_prime
         self.t = t
         self.ht = HashTable(self.n_prime)
-        
+        self.t_prime = 0
         self.alpha = random.randint(1,dh_prime - 1)
         self.L = pow(self.G,self.alpha,self.dh_prime)
         
@@ -30,7 +29,7 @@ class Server:
         p_array = []
         for i in self.ht.array:
             if i is not None:
-                p_array.append(pow(H_to_group(i[0][0]), self.alpha, self.dh_prime))
+                p_array.append(pow(H_to_group(i[0][0], self.dh_prime), self.alpha, self.dh_prime))
             else:
                 p_array.append(random.randint(1,self.dh_prime - 1))
         return p_array
@@ -40,9 +39,6 @@ class Server:
         self.IDLIST.append(voucher.id)
         S_hat = pow(voucher.Q, self.alpha, self.dh_prime)
         H_prime_of_S_hat = H_prime(S_hat)
-        
-        # rkey_dec = decrypt(H_prime_of_S_hat, voucher.ct, self.nonce)
-        
         goodkey = False
         try:
             rkey_dec = decrypt(H_prime_of_S_hat, voucher.ct, self.nonce, client_aad)
@@ -52,54 +48,30 @@ class Server:
             goodkey = True
         except cryptography.exceptions.InvalidTag:
             pass
-        
         if goodkey:
-            print("both decryptions are successful, adding triple to SHARES")
+            print("\tboth decryptions are successful, adding triple to SHARES")
             self.SHARES.append((voucher.id, dec_adct_sh[0] ,  (dec_adct_sh[1] , dec_adct_sh[2] ) ) )
+            self.t_prime = len(set( [(item[2]) for item in self.SHARES]  ))
         else:
-            print("one decryption failed, discarding voucher")
+            print("\tone decryption failed, discarding voucher")
         
         
-        # set of unique shamir shares
-        # we could theoretically just check the x coordinate because we know it will always produce the same y coordinate
-        # print("self.SHARES")
-        # print(self.SHARES)
-        # print(self.SHARES[0])
-        # print(self.SHARES[])
-        # print()
-        t_prime = len(set( [(item[2]) for item in self.SHARES]  ))
-        # print("t_prime")
-        # print(t_prime)
-        
-        if t_prime < self.t:
+        # print("t_prime = "+str(self.t_prime)) 
+        if self.t_prime < self.t:
+            print("\tThreshold not met")
             OUTSET = [item[0] for item in self.SHARES]
-            
             return self.IDLIST, OUTSET
-        
-        # we have exceeded the threshold
         else:
-            # distinct_shares = set( [(item[2]) for item in self.SHARES]) 
-            # distinct_shares = [(int(item[0].decode('utf-8')), int(item[1].decode('utf-8')) )  for item in distinct_shares]
-            
+            print("\tThreshold exceeded, reconstructing adkey")
             distinct_shares = [(int(item[0].decode('utf-8')), int(item[1].decode('utf-8')) )  for item in set( [(item[2]) for item in self.SHARES])]
-            
-            # distinct_shares = [[int((j)) for j in i] for i in distinct_shares]
-                        
-            # print("distinct_shares")
-            # print(distinct_shares)
-            
-            
-            # adkey = reconstruct_secret(distinct_shares)
             adkey = recover_secret(distinct_shares, self.t)
             # print("adkey")
             # print(adkey)
+            # converting to bytes 
             adkey_bytes = adkey.to_bytes(16, 'big')
-            
             id_adcts = [(item[0], item[1]) for item in self.SHARES]
-            
             OUTSET = []
             for id_adct in id_adcts:
-                
                 try:
                     ad = decrypt(adkey_bytes, id_adct[1], self.nonce, client_aad)
                     OUTSET.append((id_adct[0], ad))

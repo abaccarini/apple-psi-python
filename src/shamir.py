@@ -1,11 +1,13 @@
+# polynomail function taken from 
+# https://www.geeksforgeeks.org/implementing-shamirs-secret-sharing-scheme-in-python/
+# reconstruction function taken from
+# https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing
+
 import random
 from math import ceil
 from decimal import Decimal
  
-FIELD_SIZE = 10**5
-_PRIME =  2 ** 127 - 1 
-# print(FIELD_SIZE)
-
+_PRIME =  2 ** 521 - 1 
 
 def reconstruct_secret(shares):
     """
@@ -134,7 +136,7 @@ def generate_shares(n, m, secret):
     shares = []
  
     for i in range(1, n+1):
-        x = random.randrange(1, FIELD_SIZE)
+        x = random.randrange(1, _PRIME)
         shares.append((x, polynom(x, coefficients)))
  
     return shares

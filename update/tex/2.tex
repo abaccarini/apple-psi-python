@@ -1,0 +1,120 @@
+%!TEX root = ../main.tex
+
+% \section{Progress Report} % (fold)
+% \label{sec:progress_report}
+
+Since the initial proposal, we have progressed towards completion of this project. We outline the progress we hve made and address the difficulties encountered thus far in this document.
+
+The first We have decided to implement the threshold-based PSI protocol (tPSI-AD), since this is substantially easier to understand and relies solely on classical cryptographic constructions, whereas the fuzzy protocol (ftPSI-AD) relies on the novel idea of Detectable Hash Functions, an area which is not well explored.
+
+Furthermore, we are replacing some of the more obscure cryptographic tools (such as Cuckoo hashing and hashing to elliptic curves) with standard building blocks, which provide similar if not the same security guarantees while sacrificing performance advantages. Specifically, we aim to replace Cuckoo hashing with hash tables, replace the elliptic curve $E(\F_p)$ with a  Diffie-Hellman group of prime order $q$ (where a point on the curve is mapped to a key) and the discrete log problem is hard, and the Hash to Elliptic Curves construction with a simple hash function such as SHA-3.
+
+Regarding additional documentation, Pinkas's presentation \cite{pinkas2015} outlines fundamental PSI constructions that are useful for understanding the tPSI-AD protocol, including:
+\begin{itemize}
+ 	\item A naive approach -- $A$ and $B$ agree on a hash function $H$, $B$ sends $H(y_1),\dots, H(y_n)$ to $A$, $A$ compares it to $H(x_1),\dots, H(x_n)$ and finds the intersection.
+ 	\item A PSI protocol based on Diffie-Hellman -- similar as naive approach, except $B$ sends $(H(y_1))^{\beta}, \\\dots, (H(y_n))^{\beta}$ to $A$ and $A$ simultaneously sends $(H(x_1))^{\alpha}, \dots , (H(x_n))^{\alpha}$ to $B$. Then $B$ sends  $\lp{(H(x_1))^{\alpha}}^{\beta},\dots, \lp{(H(x_n))^{\alpha}}^{\beta}$ to $A$, and $A$ compares the results.
+ 	\item A PSI protocol based on Blind RSA -- $B$ chooses an RSA key pair $\lp{ (N,e), d}$, and $A$ chooses random $r_1, \dots, r_n$, computes $x_1  \lp{r_1}^{e}, \dots, x_n  \lp{r_n}^{e}$ and sends to $B$. $B$ computes and sends $(H(y_1))^{d},\dots, (H(y_n))^{d}$ and $\lp{x_1  \lp{r_1}^{e}}^{d}, \dots, \lp{x_n  \lp{r_n}^{e}}^d$, which equals $(x_1)^d r_1, \dots (x_n)^d r_n$. $A$ divides each input by $r_i$, applies $H$ and compares the lists.
+ \end{itemize} 
+These simple constructions may prove useful for detailed analysis of tPSI-AD later on. 
+Zhang~et.~al~\cite{zhang2021efficient} designed an efficient threshold PSI protocol based on garbled Bloom filters and threshold secret sharing. Their paper analyzes existing solutions and the fundamental aspects of PSI.
+Other useful online resources include \cite{yanai2020,lewis2021}.
+
+The accompanying document for the project has been updated to summarize the work of \cite{bhowmick2021apple} and describe the replacements we make for the sake of simplicity. Regarding the implementation, we have tested and confirmed the functionality of the NeuralHash tool from \cite{cheerlaNeuralHashAdversarialSteganographic2021}, as well as identified the relevant documentation and examples within \cite{pythoncrypto2021}.
+
+
+The project is approximately 50\% completed, with the bulk of the progress coming from determining what actually needs to be implemented/what can be replaced with a simpler version, and reading background materials on PSI. The following milestones remaining: finalize the modified protocol description using standard cryptographic constructions, conduct through analysis to verify the security guarantees are met from the original tPSI-ad protocol, and finish the actual implementation.
+
+
+
+% The specific protocol we are implementing occurs in four phases: {\sf S-Init}, {\sf C-Init}, {\sf C-Gen-Voucher}, and {\sf S-Process}, where {\sf S} and {\sf C} refer to the Server and Client, respectively.
+
+% \begin{algorithm}[H]
+% \algcaption{$\lp{pdata, skey} \gets \text{\sf S-Init}(X)$}\label{alg:server_init}
+% \begin{algorithmic}[1]
+% \State
+% \end{algorithmic}
+% \end{algorithm}
+
+
+
+
+
+% \begin{algorithm}[H]
+% \algcaption{$ckey \gets \text{\sf C-Init}(pdata)$}\label{alg:client_init}
+% \begin{algorithmic}[1]
+% \State
+% \end{algorithmic}
+% \end{algorithm}
+
+
+% \begin{algorithm}[H]
+% \algcaption{$voucher  \gets \text{\sf C-Gen-Voucher}(pdata, ckey, \lp{y, id, ad})$}\label{alg:client_vouch}
+% \begin{algorithmic}[1]
+% \State
+% \end{algorithmic}
+% \end{algorithm}
+
+
+% \begin{algorithm}[H]
+% \algcaption{$\text{\sf S-Process}(pdata, skey, voucher)$}\label{alg:server_process}
+% \begin{algorithmic}[1]
+% \State
+% \end{algorithmic}
+% \end{algorithm}
+
+
+
+% \begin{table}[H]
+% \centering
+% 	\begin{tabular}{r|l}
+% 		\hline
+% 		\hline
+	
+
+% 		\textbf{Symbol} & \textbf{Meaning} \\
+% 		\hline
+% 		\hline
+% 		$\G$	& Cyclic group of primer order $q$ where DDH is hard\\
+% 		\hline
+% 		$G$	& 	Generator of $\G$\\
+% 		\hline
+% 		$\U$	& 	Universe of hash values\\
+% 		\hline
+% 		$H: \U \to \G \sm \lbr{0}$	& 	Hash function modeled as random oracle\\
+% 		\hline
+% 		$X \of \U$	&Set of hash values the server has, s.t. $\norm{X} = n$. Every hash is distinct.	  	\\
+% 		\hline
+% 		$\bar{Y} = \lp{\lp{y_i, id_i, ad_i }}$	& Triples the client has, s.t. $\norm{\bar{Y}} = m, i \in \lb{1,m}$.	\\
+% 		\hline
+% 		$y \in \mathcal{U}$	& 	Hash value\\
+% 		\hline
+% 		$id \in \mathcal{ID}$	& 	Unique identifier of a triple\\
+% 		\hline
+% 		$ad \in \mathcal{D}$	& 	Associated data of a triple\\
+% 		\hline
+% 		$id(\bar{Y})$& Set of $id$'s of triples in $\bar{Y}$     \\
+% 		\hline
+
+% 		$id(\bar{Y} \cap X)$& Set of $id$'s of triples in $\bar{Y}$ whose $y$ is also in $X$     \\
+% 		\hline
+% 		$\bar{Y}_{id} \in \mathcal{ ID}^{m}$	& List of all $id$'s in the triples in $\Yb$    \\
+% 		\hline
+% 		$\Yb_{id, ad} \of \lp{\mathcal{ID} \times \mathcal{D}} $ & (Projection) Set of $id$'s and $ad$'s in the triples in $\Yb$  \\
+% 		\hline
+% 		\multirow{2}{*}{$\Yb \lb{T}\of \lp{\U \times \mathcal{ID} \times \mathcal{D}}^{\leq m} $ }	&  (Selection) For a set of $id$'s $T \of \mathcal{ID}$, this is\\
+% 			&   the list of triples in $\Yb$ whose $id$'s are in $T$  \\
+
+% 		\hline
+% 		$x \gets d$	&   Assignment of value $d$ to variable $x$  \\
+% 		\hline
+% 		$x \getsrv \X$	&   $x$ is a RV sampled uniformly over a finite set $\X$  \\
+% 		\hline
+% 		$x \getsrv A (\cdot)$	&   $x$ is the output of a randomized algorithm $A$\\
+
+% 		\hline
+% 		\hline
+
+% 	\end{tabular}
+% 	\caption{PSI notations.}
+% 	\label{tbl:noataions}
+% \end{table}

@@ -1,0 +1,58 @@
+%!TEX root = ../main.tex
+
+\section{Proposal} % (fold)
+\label{sec:proposal}
+
+
+Earlier this August, Apple unveiled its novel Child Sexual Abuse Material (CSAM) detection system\footnote{\url{https://www.apple.com/child-safety/}} to inhibit the spread of CSAM and aid law enforcement in pursuing criminals. The framework is designed to automatically detect known CSAM images stored in iCloud Photos, and allow Apple to report the offending users to the National Center for Missing and Exploited Children (NCMEC). The system would be present on all US-based iPhone and iPad devices running iOS 15 and iPadOS 15, respectively, with the goal of adding support to macOS and watchOS in the future. The announcement received significant backlash from media and the tech community, stating that this system is effectively a backdoor an authoritarian government can leverage to conduct censorship on any material deemed ``inappropriate.'' However, on September 8, 2021, Apple ultimately decided to delay the rollout of this feature citing feedback from ``customers, advocacy groups, and researchers.'' No projected release date has been provided at the time of writing.
+
+The goal of this project is implement and verify Apple's protocol using open-source software (such as \cite{athalyeNeuralHashCollider2021,ygvarAppleNeuralHash2ONNX2021,cheerlaNeuralHashAdversarialSteganographic2021} for the machine learning component) and standard cryptographic libraries (such as Python's \texttt{cryptography} package) on a small-scale dataset. The Private Set Intersection (PSI) system proposed in \cite{bhowmick2021apple} is constructed as follows: First, the database CSAM Hashes is stored on the client's device. PSI is performed locally, which is used to determine if there exists a match without revealing the result. The device generates ``safety voucher'' that encodes the match result and user's decryption key, which is subsequently uploaded to iCloud for PSI matching. Threshold secret sharing is leveraged to ensure the user's decryption key cannot be recovered without meeting some predefined ``threshold.'' If this threshold is crossed, Apple can retrieve the decryption key for the flagged user's photos, manually verify that they in fact CSAM images, and report the user to NCMEC. A basic overview of the system is shown in Figure~\ref{fig:proto}, and a technical summary is given in \cite{CSAMDetectionTechnical2021}. The following cryptographic tools are used in this system: 
+
+\noindent
+\hangindent=\parindent
+\emph{NeuralHash}: NeuralHash is a perceptual hashing function for images based on neural networks and produces a ``fingerprint'' of the input. The algorithm passes the input image into a convolutional neural network to produce an $N$-dimensional floating point descriptor, which are hashed using Hyperplane LSH (Locality Sensitivity Hashing) to produce an $M$-bit value as the NeuralHash of the image. Unlike a standard cryptographic hash function (such as MD5 and the SHA family), NeuralHash is insensitive to small perturbations of the input image, such as cropping and pixel inversion. Note, the publicly available reverse-engineered version of the NeuralHash algorithm has been shown to not be collision resistant \cite{ygvarAppleNeuralHash2ONNX2021}. Apple claims a proprietary server-side algorithm is run to verify the results \cite{cox20201}.
+
+\noindent
+\hangindent=\parindent
+\emph{Private Set Intersection (PSI)}: Private Set Intersection (PSI) is a multi-party protocol that allows each party to compute the intersection of their inputs in a privacy-preserving manner, such that only shared inputs are revealed \cite{kiss2017private}. The security model for PSI requires privacy for the server, privacy for the client, the absence of any false positives, and the protocol does not require a correct output for a malicious client. PSI is based on a variety of cryptographic primitives, including symmetric encryption, Elliptic curve with Decision Diffie-Hellman, hash functions, HMAC for secure key derivation, Shamir Secret Sharing, and pseudorandom functions.
+
+\noindent
+\hangindent=\parindent
+\emph{Threshold Secret Sharing}: Threshold Secret Sharing is a cryptographic technique where some secret $x$ and is distributed as shares $x_i$ to a set of $n$ participating parties $P_i, \dots P_n$. Any $t$ users  can reconstruct the secret, but any amount $t-1$ or fewer cannot recover any information about $x$. Specifically, this is referred to as \emph{$(n,t)$-threshold scheme} (with $t \le n$) \cite{katz2014introduction}. In the CSAM detection system, the user's decryption key for their photos is the secret, and is used to generate a share (based on Shamir Secret Sharing) once a potential match is found. A secondary encryption based on PSI is performed on the secret share and encrypted image. The scheme ensures information about images stored in iCloud remains private if the threshold is not met. If a sufficient number of matches are found, the PSI protocol guarantees only the matched images can be recovered. 
+It is necessary to obfuscate the number of matched images until the threshold is exceeded, otherwise Apple could learn this information without properly verifying the images' contents. Therefore, ``synthetic vouchers'' are periodically sent to the server with garbage data replacing the shares and underlying image information, along with a header that always produces a match on the server.
+
+% \end{adjustwidth}
+\begin{figure*}[t]
+	\centering
+	\includesvg[inkscapelatex=false,width=0.9\textwidth]{csam2}
+	\caption{Basic protocol functionality.}
+	\label{fig:proto}
+\end{figure*}
+\noindent 
+Apple claims the system ensures the following security guarantees:
+\begin{itemize}
+	\item Apple cannot recover the user's photos without meeting the threshold number of shares of the key.
+	\item The likelihood of a false positive is statistically insignificant (1 in 1 trillion claimed by Apple).
+	\item No information is learned about non-matched images.
+	\item The user cannot retrieve any information from the CSAM database.
+	\item The user cannot identify which images were flagged as CSAM by the system.
+\end{itemize}
+
+We plan to implement the system as a terminal-based program in Python, where we have two consoles functioning as the client ($C$) and server ($S$) as follows:
+\begin{itemize}
+	\item Client $C$:
+	\begin{enumerate}
+		\item $C$ has access to a database of NeuralHashes functioning as the known CSAM hash list.
+		\item The user inputs a photo's filename  into the console to emulate the process of taking a photo on their phone.
+		\item In the background, $C$'s device computes the NeuralHash of the input image and matches it against the database.
+		\item If a match is found, $C$ computes a cryptographic header derived from the NeuralHash and encrypts a payload consisting of the image's information and a share of the user's private key, thus constituting the safety voucher.
+		\item $C$ sends the safety voucher to $S$.
+	\end{enumerate}
+	\item Server $S$:
+	\begin{enumerate}[resume]
+		\item \label{a} $S$ receives the voucher from $C$.
+		\item \label{b} Using the cryptographic header, $S$ attempts to decrypt the payload.
+		\item If steps \ref{a} and \ref{b} are successful a sufficient number of times to surpasses the threshold, $S$ can recover the user's encryption key and retrieve the matched images' information.
+	\end{enumerate}
+\end{itemize}
+All of the necessary cryptographic tools (symmetric encryption, Elliptic curve with Decision Diffie-Hellman, hash functions, HMAC for secure key derivation, Shamir Secret Sharing, and pseudorandom functions) needed for the system are publicly available as part of the \texttt{cryptography}\footnote{\url{https://github.com/pyca/cryptography}} package and other related open-source software. Basic networking is achievable through the \texttt{socket}\footnote{\url{https://docs.python.org/3/library/socket.html}} package. Sample images will be taken from the ImageNet\footnote{\url{https://www.image-net.org/}} dataset.

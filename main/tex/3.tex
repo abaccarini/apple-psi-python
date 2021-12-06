@@ -1,0 +1,31 @@
+%!TEX root = ../main.tex
+
+
+\section{Building Blocks} % (fold)
+\label{sec:building_blocks}
+
+
+Cryptographic primitives:
+\begin{itemize}
+	\item $\lp{\enc, \dec}$ denotes  a symmetric encryption scheme with  key space $\K'$ and satisfies standard symmetric key security properties (AES128-GCM).
+	\item $E(\F_p)$ is an elliptic curve of prime order $q$, with $G$ as a fixed generator of $E(\F_p)$. Assume Decision Diffie-Hellman (DDH) holds in $E(\F_p)$ (NIST P256).
+	\item $H : \U \to E(\F_p) \setminus \lbr{\O}$ is a hash function modeled as as random oracle.
+	\item $H' : E(\F_p) \to \K'$ is secure key derivation function; the uniform distribution on $E(\F_p) $ mapped to an ``almost'' uniform distribution on $\K'$ (HKDF, based on HMAC)
+	\item Shamir secret sharing on an element of $\K'$ to obtain shares in $\F_{\text{Sh}}^2$ for some field $\F_{\text{Sh}}$ that is sufficiently large such that when choosing $t+1$ random elements from $\F_{\text{Sh}}$, the probability of a collision is low.
+
+	\item A pseudorandom function (PRF) $F : \K'' \times \mathcal{ID} \to \F_{\text{Sh}}^2 \times \X \times \R$, where the sets $\X$ and $\R$ are the domain and range of a detectable hash function, respectively (HMAC).
+\end{itemize}
+
+\subsection{The Diffie-Hellman random self reduction} % (fold)
+\label{sub:the_diffie_hellman_random_self_reduction}
+
+
+\subsection{Detectable hash functions} % (fold)
+\label{sub:detectable_hash_functions}
+
+
+
+\subsection{Cuckoo Tables (Cuckoo Hashing)} % (fold)
+\label{sub:cuckoo_tables}
+
+We provide a brief overview of Cuckoo Hashing, which is a technique designed for resolving collisions in hash tables and provides a worst-case $\Theta(1)$ lookup and deletion time.

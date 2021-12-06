@@ -1,0 +1,24 @@
+%!TEX root = ../main.tex
+
+
+\appendix
+
+\section{Mathematical Reference} % (fold)
+\label{sec:mathematical_reference}
+
+
+\subsection{Finite Fields} % (fold)
+\label{sub:finite_fields}
+
+
+\begin{definition}
+A \emph{(finite) finite} $\F$ is a set defined with operations $+, \times$ such that the following hold:
+\begin{itemize}
+	\item $\F$ is abelian with respect to ``$+$,'' where we let 0 denote the identity element.
+	\item $\F \sm \lbr{0}$ is abelian with respect to ``$\times$,'' where we let 1 denote the identity element. We write $ab$ in place of $a \times b$.
+	\item \emph{(Distributivity:) }$\forall a, b, c \in \F$, we have $a \times \lp{b + c} = ab + ac$
+\end{itemize}
+\end{definition}
+The additive inverse of $a \in \F$ denoted by $-a$ is a unique element that satisfies $a + \lp{-a} = 0$, and the multiplicative inverse of $a \in \F \sm \lbr{0}$ denoted $a^{-1}$ is the unique element that satisfies $a a^{-1} = 1$.
+
+The \emph{order} of a $F$ is the number of elements in $\F$, provided $\F$ is finite. If $q$ is a prime power $q = p^r$ for a prime $p$ and positive integer $r$, we can establish the field $\F_p$ of prime order $q$.

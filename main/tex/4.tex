@@ -1,0 +1,50 @@
+%!TEX root = ../main.tex
+
+\section{Threshold PSI-AD using the DH random self reduction} % (fold)
+\label{sec:threshold_psi_ad_using_the_dh_random_self_reduction}
+
+
+\subsection{tPSI-AD protocol walkthrough} % (fold)
+\label{sub:tpsi_ad_protocol_walkthrough}
+
+
+We now walk through every step up the warm-up tPSI-AD protocol outlined in \cite{bhowmick2021apple}. We let $t$ denote the threshold, $m$ be an upper bound on the number of triples the client will process, and $n = \norm{X}$.
+
+
+
+The specific protocol we are implementing occurs in four phases: {\sf S-Init}, {\sf C-Init}, {\sf C-Gen-Voucher}, and {\sf S-Process}, where {\sf S} and {\sf C} refer to the Server and Client, respectively.
+
+\begin{algorithm}[H]
+\algcaption{$\lp{pdata, skey} \gets \text{\sf S-Init}(X)$}\label{alg:server_init}
+\begin{algorithmic}[1]
+\State
+\end{algorithmic}
+\end{algorithm}
+
+
+
+
+
+\begin{algorithm}[H]
+\algcaption{$ckey \gets \text{\sf C-Init}(pdata)$}\label{alg:client_init}
+\begin{algorithmic}[1]
+\State
+\end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}[H]
+\algcaption{$voucher  \gets \text{\sf C-Gen-Voucher}(pdata, ckey, \lp{y, id, ad})$}\label{alg:client_vouch}
+\begin{algorithmic}[1]
+\State
+\end{algorithmic}
+\end{algorithm}
+
+
+\begin{algorithm}[H]
+\algcaption{$\text{\sf S-Process}(pdata, skey, voucher)$}\label{alg:server_process}
+\begin{algorithmic}[1]
+\State
+\end{algorithmic}
+\end{algorithm}
+

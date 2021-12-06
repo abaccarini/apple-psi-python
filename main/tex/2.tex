@@ -1,0 +1,42 @@
+%!TEX root = ../main.tex
+
+\section{Streaming threshold PSI with associated data} % (fold)
+\label{sec:streaming_threshold_psi_with_associated_data}
+
+
+
+\begin{table}[H]
+\centering
+	\begin{tabular}{r|l}
+		\hline
+		\hline
+	
+
+		\textbf{Symbol} & \textbf{Meaning} \\
+		\hline
+		\hline
+		$\U$	& 	Universe of hash values\\
+		$X \of \U$	&Set of hash values the server has, s.t. $\norm{X} = n$. Every hash is distinct.	  	\\
+		$\bar{Y} = \lp{\lp{y_i, id_i, ad_i }}$	& Triples the client has, s.t. $\norm{\bar{Y}} = m, i \in \lb{1,m}$.	\\
+		$y \in \mathcal{U}$	& 	Hash value\\
+		$id \in \mathcal{ID}$	& 	Unique identifier of a triple\\
+		$ad \in \mathcal{D}$	& 	Associated data of a triple\\
+		$id(\bar{Y})$& Set of $id$'s of triples in $\bar{Y}$     \\
+
+		$id(\bar{Y} \cap X)$& Set of $id$'s of triples in $\bar{Y}$ whose $y$ is also in $X$     \\
+		$\bar{Y}_{id} \in \mathcal{ ID}^{m}$	& List of all $id$'s in the triples in $\Yb$    \\
+		$\Yb_{id, ad} \of \lp{\mathcal{ID} \times \mathcal{D}} $ & (Projection) Set of $id$'s and $ad$'s in the triples in $\Yb$  \\
+		\multirow{2}{*}{$\Yb \lb{T}\of \lp{\U \times \mathcal{ID} \times \mathcal{D}}^{\leq m} $ }	&  (Selection) For a set of $id$'s $T \of \mathcal{ID}$, this is the\\
+			&    list of triples in $\Yb$ whose $id$'s are in $T$  \\
+
+		$x \gets d$	&   Assignment of value $d$ to variable $x$  \\
+		$x \getsrv \X$	&   $x$ is a RV sampled uniformly over a finite set $\X$  \\
+		$x \getsrv A (\cdot)$	&   $x$ is the output of a randomized algorithm $A$\\
+
+		\hline
+		\hline
+
+	\end{tabular}
+	\caption{PSI notations.}
+	\label{tbl:noataions}
+\end{table}

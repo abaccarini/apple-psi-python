@@ -9,31 +9,6 @@ from decimal import Decimal
  
 _PRIME =  2 ** 521 - 1 
 
-def reconstruct_secret(shares):
-    """
-    Combines individual shares (points on graph)
-    using Lagranges interpolation.
- 
-    `shares` is a list of points (x, y) belonging to a
-    polynomial with a constant of our key.
-    """
-    sums = 0
-    prod_arr = []
- 
-    for j, share_j in enumerate(shares):
-        xj, yj = share_j
-        prod = Decimal(1)
- 
-        for i, share_i in enumerate(shares):
-            xi, _ = share_i
-            if i != j:
-                prod *= Decimal(Decimal(xi)/(xi-xj))
- 
-        prod *= yj
-        sums += Decimal(prod)
- 
-    return int(round(Decimal(sums), 0))
-
 def _extended_gcd(a, b):
     """
     Division in integers modulus p means finding the inverse of the
@@ -127,17 +102,17 @@ def coeff(t, secret, sh_prime):
     return coeff
  
  
-def generate_shares(n, m, secret):
-    """
-    Split given `secret` into `n` shares with minimum threshold
-    of `m` shares to recover this `secret`, using SSS algorithm.
-    """
-    coefficients = coeff(m, secret)
-    shares = []
+# def generate_shares(n, m, secret):
+#     """
+#     Split given `secret` into `n` shares with minimum threshold
+#     of `m` shares to recover this `secret`, using SSS algorithm.
+#     """
+#     coefficients = coeff(m, secret)
+#     shares = []
  
-    for i in range(1, n+1):
-        x = random.randrange(1, _PRIME)
-        shares.append((x, polynom(x, coefficients)))
+#     for i in range(1, n+1):
+#         x = random.randrange(1, _PRIME)
+#         shares.append((x, polynom(x, coefficients)))
  
-    return shares
+#     return shares
  

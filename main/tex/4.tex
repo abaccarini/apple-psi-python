@@ -7,14 +7,12 @@ We now walk through every step up the warm-up tPSI-AD protocol outlined in \cite
 
 \begin{algorithm}[H]
 \DontPrintSemicolon
+\SetKwFunction{proc}{proc}
   Remove any duplicates from $X$, and let $n = \norm{X}$.
 
-     Construct a hash table $T$:\;
-    {\begin{itemize}
-          \item Let $n' \geq n$ be the size of the table, where  $n'$ is sufficiently larger than $n$ as to minimize collisions.
-          \item Choose a hash function $h : \U \to \lbr{1,\dots,n'}$.
-          \item Insert elements of $X$ into $T$, where each cell should have at most one element.
-        \end{itemize}}
+
+     Construct a hash table $T$ with {\sf HashTable}$(X)$\;
+
    Choose a random nonzero $\alpha \in \F_q$, compute $L = G^\alpha \in \Gdh$\;
      
      \For{$i = 1$ to $n'$}{
@@ -26,32 +24,26 @@ Set $P_i = {H(T[i])^{\alpha}} \in \Gdh  $, where $T[i] \in X \of \U$, and $H: \U
 
    }
 
-    Set $pdata = \lp{L, P_1, \dots, P_{n'}}$.
+    Set $\texttt{pdata} = \lp{L, P_1, \dots, P_{n'}}$.
 
+% \setcounter{AlgoLine}{0}
 
+\SetKwProg{myproc}{Procedure}{}{}
+  \myproc{${\sf HashTable}(X)$}{
+Let $n' \geq n$ be the size of the table, where  $n'$ is sufficiently larger than $n$ as to minimize collisions.\;
+           Choose a hash function $h : \U \to \lbr{1,\dots,n'}$.\;
+           Insert elements of $X$ into $T$, where each cell should have at most one element.\;
+
+  }
 \caption{ {\sf S-Init}$(X)$}
 \label{algo:s_init}
 \end{algorithm}
 
+At this point, the server would send each client \texttt{pdata}, along with descriptions of each hash function $H$, $H'$, and $h$ in the form of 128-bit domain separation nonces. For simplicity in our implementation, we assume the existence of fixed, shared keys between the client and server for the hash functions.
 
-
-  
- %   \medskip \noindent
- % {\sf C-Init}: 
- %  \begin{enumerate}
- %    \item Obtain $pdata$ from the server.
- %      \item Generate $adkey \gets \K'$ for  encryption scheme $\lp{\enc, \dec}$.
- %      \item Generate $fkey \gets \K''$ for the PRF $F: \K'' \times \ID \to \F_{\sh}$.
- %      \item Initialize threshold {Shamir secret sharing} for $adkey$:
- %      \begin{align*}
- %      f(x) = a_0 + a_1x + a_2x + \dots + a_{t-1}x^{t-1},
- %      \end{align*}
- %      where $a_0 = adkey$ is the secret.
- %  \end{enumerate}
-  
 \begin{algorithm}[H]
 \DontPrintSemicolon
-     Obtain $pdata$ from the server.\;
+     Obtain $\texttt{pdata}$ from the server.\;
 
        Generate $adkey \gets \K'$ for  encryption scheme $\lp{\enc, \dec}$.\;
        Generate $fkey \gets \K''$ for the PRF $F: \K'' \times \ID \to \F_{\sh}$.\;
@@ -64,35 +56,35 @@ Set $P_i = {H(T[i])^{\alpha}} \in \Gdh  $, where $T[i] \in X \of \U$, and $H: \U
 \caption{  {\sf C-Init}$()$}
 \label{algo:c_init}
 \end{algorithm}
-
+This completes the setup procedure. In practice, we can assume this procedure would take place when a user registers their new device with Apple and opts-in for iCloud.
 
 \begin{algorithm}[H]
 \DontPrintSemicolon
       Compute
-        \begin{align*}
+        % \begin{align*}
+        $
                adct \gets \enc \lp{adkey, ad},
-        \end{align*}        
+        % \end{align*}
+        $        
         and ensure all $adct$ must be the same length.\;
       Compute $x = F(fkey, id) \in \F_{\sh}$.\;
 
       Generate a share $sh = \lp{x, f(x)} \in \F_{\sh}$ of $adkey$. This guarantees duplicate triples with the same $id$ will produce the same $sh$).\;
 
       Choose a random key $rkey \gets \K'$ and compute 
-      \begin{align*}
+      % \begin{align*}
+      $
       rct \gets \enc \lp{rkey, \lp{adct, sh}}. 
-      \end{align*}
+      % \end{align*}
+      $
 
       Compute $w = h(y) \in \lbr{1,\dots,n'}$.\;
 
-      Sample random  $\beta, \gamma \in \F_q$, and use $P_w,L$ from $pdata$ to compute:
+      Sample random  $\beta, \gamma \in \F_q$, and use $P_w,L$ from $\texttt{pdata}$ to compute:
      \begin{align*}
      Q = H(y)^{\beta} \cdot G^{\gamma} \text{ and } S = P_w^{\beta} \cdot L^{\gamma},
      \end{align*}
-     where if $y = T[w]$, then $P_w = H(y)^{\alpha}$ and $S = Q^{\alpha}$. 
- {    
-      The client is applying the DH random self reduction to the triple $\lp{L, H(y), P_w}$. If $y = T[w]$, then $P_w = H(y)^\alpha$ and $(Q,S)$ satisfies $S = Q^\alpha$. Otherwise, $(Q,S)$ are random elements of $\Gdh$.}
-
-
+     where if $y = T[w]$, then $P_w = H(y)^{\alpha}$ and $S = Q^{\alpha}$. \label{alg_step:dhsr} \;
    Compute $ct \gets \enc \lp{H'(S), rkey},$ where $H' : \Gdh \to \K'$.\;
       Send $voucher = (id, Q, ct, rct)$ to the server.\;
 
@@ -101,31 +93,7 @@ Set $P_i = {H(T[i])^{\alpha}} \in \Gdh  $, where $T[i] \in X \of \U$, and $H: \U
 \label{algo:c_gen_voucher}
 \end{algorithm}
 
-
- %   \medskip \noindent
- % {\sf C-Gen-Voucher}: 
- %  \begin{enumerate}
-
- %     \item Encrypt $ad$ as $adct \gets \enc \lp{adkey, ad},$ and all $adct$ must be the same length.
- %     \item Compute $x = F(fkey, id) \in \F_{\sh}$.
-
- %     \item Generate a share $sh = \lp{x, f(x)} \in \F_{\sh}$ of $adkey$ (guarantees duplicate triples with the same $id$ will produce the same $sh$).
-
-
- %     \item Choose a random key $rkey \gets \K'$ and compute $rct \gets \enc \lp{rkey, \lp{adct, sh}}$.%concatenation?
-
-
- %     \item Compute $w = h(y) \in \lbr{1,\dots,n'}$.
- %     \item Sample random  $\beta, \gamma \in \F_q$, and use $P_w,L$ from $pdata$ to compute:
- %     \begin{align*}
- %     Q = H(y)^{\beta} \cdot G^{\gamma} \text{ and } S = P_w^{\beta} \cdot L^{\gamma},
- %     \end{align*}
- %     where if $y = T[w]$, then $P_w = H(y)^{\alpha}$ and $S = Q^{\alpha}$. The client is applying the DH random self reduction to the triple $\lp{L, H(y), P_w}$. If $y = T[w]$, then $P_w = H(y)^\alpha$ and $(Q,S)$ satisfies $S = Q^\alpha$. Otherwise, $(Q,S)$ are random elements of $\Gdh$.
- %  \item Compute $ct \gets \enc \lp{H'(S), rkey},$ where $H' : \Gdh \to \K'$.
- %     \item Send $voucher = (id, Q, ct, rct)$ to the server.
- %   \end{enumerate} 
-  
-
+The intuition for Step~\ref{alg_step:dhsr} is that the client is applying the DH random self reduction to the triple $\lp{L, H(y), P_w}$. If $y = T[w]$, then $P_w = H(y)^\alpha$ and $(Q,S)$ satisfies $S = Q^\alpha$. Otherwise, $(Q,S)$ are random elements of $\Gdh$.
 
 
 \begin{algorithm}[H]
@@ -141,7 +109,7 @@ Initialize empty set $\texttt{{SHARES}}$ and an empty list $\texttt{IDLIST}$.\;
 } 
 Let $t'$ denote the number of \emph{unique} shares in $\texttt{SHARES}$, and $t'$ should equal the size of $id (\bar{Y} \cap X)$. \; 
 \If{ $t' < t$}{
-    let $\texttt{OUTSET}$ be the set of identifiers in $\texttt{SHARES}$
+    let $\texttt{OUTSET}$ be the set of identifiers in $\texttt{SHARES}$.
 }\ElseIf{$t' \geq t$}{
     Use $t$ shares to reconstruct $adkey \in \K'$.\;
     Initialize $\texttt{OUTSET} = \lbr{\emp}$.\;
@@ -153,8 +121,8 @@ Let $t'$ denote the number of \emph{unique} shares in $\texttt{SHARES}$, and $t'
 Output $\texttt{IDLIST}$ and $\texttt{OUTSET}$.\; 
 \caption{{\sf S-Process}} 
 \label{algo:s_process}
-
 \end{algorithm}
+
 Since the original protocol relies on slightly different primitives than the version provided in this paper, we argue its correctness below.
 \begin{theorem}[Correctness]
 Suppose the client and serve honestly adhere to Protocols~\ref{algo:s_init},~\ref{algo:c_init},~\ref{algo:c_gen_voucher},~and~\ref{algo:s_process}, and the following assumptions hold:
@@ -163,39 +131,26 @@ Suppose the client and serve honestly adhere to Protocols~\ref{algo:s_init},~\re
     \item $(\emph{\enc}, \emph{\dec})$ is random key robust, and
     \item $F$ is a secure PRF.
 \end{enumerate}
-The the server learns the required tPSI-AD output with high probability.
+Then the server learns the required tPSI-AD output with high probability.
 \end{theorem}
 
+\begin{proof}
+By construction, the output \texttt{IDLIST} is equal to $\Yb_{id}$. We first show the server learns the set  $id \lp{\Yb \cap X}$ as required in tPSI-AD.  Let $\lp{y, id, ad} \in \Yb$ be a client triple and $\lp{id, Q, ct, rct}$ be its corresponding voucher. We consider two possibilities:
+\begin{itemize}
+    \item (Case 1) If $id \nin id \lp{\Yb \cap X}$, then we know with high probability the element $H(y)^\alpha \in \Gdh$ is not equal to the point $P_{h(y)}$ in \texttt{pdata}, and therefore $(L, H(Y), P_{h(y)})$ is not a Diffie-Hellman tuple. The client creates the ciphertext $ct$ using a key $H'(Q^\alpha)$, and the pair $(Q,S)$ are random elements of $\Gdh$ by the Diffie-Hellman random self reduction. The keys $H'(S)$ and $H'(Q^\alpha)$ are therefore random keys in $\K''$, and thus via random key robustness of $(\enc, dec)$, the server would fail to decrypt $ct$.
 
- %   \medskip \noindent
- % {\sf S-Process}: 
-
- %  \begin{enumerate}
- %    \item Initialize empty set $\texttt{{SHARES}}$ and an empty list $\texttt{IDLIST}$.
- %    \item For each voucher $(id, Q, ct, rct)$ received, do:
- %    \begin{itemize}
- %      \item Append $id$ to \texttt{IDLIST}.
- %      \item Compute $\hat{S} = Q^{\alpha} \in \Gdh$, 
- %      \item Set $rkey = \dec (H'(\hat{S}), ct)$.
- %      \item Set $(adct, sh) = \dec (rkey, rct)$.
- %      \item If either decryptions ``fails'', $y$ is a non-match, and ignore the voucher. 
- %      \item Otherwise, we found a match and add $(id, adct, sh)$ to $\texttt{SHARES}$.
- %    \end{itemize}
+    \item (Case 2) If $id \in id \lp{\Yb \cap X}$, then $(L, H(Y), P_{h(y)})$ must be a Diffie-Hellman tuple, and the server would succeed in decrypting $ct$ to learn $rkey$ of the voucher.
+\end{itemize}
+Now, suppose $ id \lp{\Yb \cap X}$ contains more than $t$ elements. The server can reconstruct $adkey$ since it has learned all $rkey$'s for every voucher containing a match; it uses $rkey$'s to reveal the pairs $(adct, sh)$, in the process retrieving sufficient shares $sh$ of $adkey$ to perform reconstruction. Once $adkey$ has been recovered, the server decrypts all $adct$'s that correspond to identifiers in $ id \lp{\Yb \cap X}$, hence revealing $\Yb \lb{id (\Yb \cap X)}_{\lbr{id, ad}}$ as required.
+\end{proof}
 
 
+\begin{remark}
+\label{rmk:dupe}
+One of the major discrepancies with the system is how it handles \emph{duplicate hashes}. The authors consider it a possibility for the existence of triples in $\Yb $ with the same hash $y$, provided they have different corresponding $id$'s. More specifically, it is valid for a $\Yb$ to contain the triples $t_i = \lp{y_i, id_i, ad_i}$ and $t_j \lp{y_i, id_j, ad_i}$ for $i \neq j$. If a client submits a voucher derived from $t_j$ after previously submitting $t_i$, we are guaranteed to treat $t_j$ as unique match with a valid share of $adkey$, since $x$ is derived from $id$, namely $x = F(fkey,id)$. This implies a client inputting multiple copies of the same violating image on their device may exceed the threshold $t$ as if every picture was unique. This is particularly notable considering how easy it is to produce collisions using NeuralHash (see~\cite{athalyeNeuralHashCollider2021}). The authors may consider this an acceptably property of the system, but is nonetheless worth noting. 
+\end{remark}
 
+\begin{remark}
+The original protocol uses Cuckoo tables instead of regular hash tables. We experimentally determined that $\norm{T} = n'$ must be at least twice as large as $n$ to provide some collision resistance, namely $n' = 2^{\ceil{\log n} +1}$. Cuckoo tables can achieve perfect collision resistance at a much lower space cost, namely $n' = (1+\epsilon')n$  constant $\epsilon \geq 0$.
+\end{remark}
 
-
- %    \item Let $t'$ denote the number of \emph{unique} shares in $\texttt{SHARES}$, and $t'$ should equal the size of $id (\bar{Y} \cap X)$. 
- %    \begin{itemize}
- %      \item If $t' < t$, let $\texttt{OUTSET}$ be the set of identifiers in $\texttt{SHARES}$.
- %      \item If $t' \geq t$, do:
- %      \begin{itemize}
- %        \item Use $t$ shares to reconstruct $adkey \in \K'$.
- %        \item Initialize $\texttt{OUTSET} = \lbr{\emp}$.
- %        \item For each triple $(id, adct, sh) \in \texttt{SHARES}$, compute $ad = \dec (adkey, adct)$. If it fails, discard the voucher. Otherwise, add $(id,ad )$ to $\texttt{OUTSET}$.
- %      \end{itemize}
- %      \item Output $\texttt{IDLIST}$ and $\texttt{OUTSET}$.
- %    \end{itemize}
- %  \end{enumerate}
-  

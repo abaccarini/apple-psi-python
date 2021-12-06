@@ -30,7 +30,7 @@ def generate_fkey():
 
 def generate_adkey(dh_prime):
     # return H_prime(random.randint(1,2**127 - 1)) #change to actual random value
-    ran = random.randint(1,2**32 - 1)
+    ran = random.randint(1,2**128 - 1)
     # print("ran")
     # print(ran)
     # ran = 2358485516

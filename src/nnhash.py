@@ -17,13 +17,10 @@ import numpy as np
 import onnxruntime
 from PIL import Image
 
-# fixed
-# image_dir = 'images/'
 model = 'model/model.onnx'
 seed = 'model/neuralhash_128x96_seed1.dat'
 
-def generate_hash(image):
-            
+def generate_hash(image, input_dir):
     # Load ONNX model
     session = onnxruntime.InferenceSession(model)
 
@@ -33,7 +30,7 @@ def generate_hash(image):
     seed1 = seed1.reshape([96, 128])
 
     # Preprocess image
-    image = Image.open(image).convert('RGB')
+    image = Image.open(input_dir + image).convert('RGB')
     image = image.resize([360, 360])
     arr = np.array(image).astype(np.float32) / 255.0
     arr = arr * 2.0 - 1.0

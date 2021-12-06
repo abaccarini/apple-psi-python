@@ -5,10 +5,11 @@
 \input{commands.tex}
 
 \title{
-\vspace{-2.9cm}
-Implementation and Analysis of Apple's \\
-CSAM Detection System
- \vspace{-0.6cm}
+% \vspace{-2.9cm}
+Implementation and Analysis of\\ 
+ the Apple PSI System \\
+ \cite{bhowmick2021apple}
+ % \vspace{-0.6cm}
  }
 \author{Alessandro Baccarini \\
 \small{\href{mailto:anbaccar@buffalo.edu}{\texttt{anbaccar@buffalo.edu}}} \\
@@ -17,6 +18,7 @@ CSAM Detection System
  \vspace{-1.5cm}
 }
 \date{}
+
 \begin{document}
 
 
@@ -24,7 +26,6 @@ CSAM Detection System
 % \begin{titlepage}
 \maketitle
 % \thispagestyle{empty}
-% \end{titlepage}
 \pagenumbering{arabic}
 
 % % \maketitle
@@ -32,7 +33,10 @@ CSAM Detection System
 
 % \tableofcontents
 % \thispagestyle{empty}
-
+\begin{abstract}
+In this project, we implement a proof-of-concept version of Apple's private set intersection (PSI) system in Python. We modify the the protocols to use simpler cryptographic primitives, and demonstrate its correctness.
+\end{abstract}
+% \end{titlepage}
 
 \input{tex/1.tex}
 
@@ -40,7 +44,7 @@ CSAM Detection System
 \input{tex/3.tex}
 \input{tex/4.tex}
 \input{tex/5.tex}
-\input{tex/6.tex}
+% \input{tex/6.tex}
 \input{tex/7.tex}
 
 

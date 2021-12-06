@@ -2,3 +2,32 @@
 
 \section{Introduction} % (fold)
 \label{sec:introduction}
+
+
+
+Earlier this August, Apple unveiled its novel Child Sexual Abuse Material (CSAM) detection system\footnote{\url{https://www.apple.com/child-safety/}} to inhibit the spread of CSAM and aid law enforcement in pursuing criminals. The framework is designed to automatically detect known CSAM images stored in iCloud Photos, and allow Apple to report the offending users to the National Center for Missing and Exploited Children (NCMEC). The system would be present on all US-based iPhone and iPad devices running iOS 15 and iPadOS 15, respectively, with the goal of adding support to macOS and watchOS in the future. The announcement received significant backlash from media, the tech community, and security researchers, stating that this system is effectively a backdoor an authoritarian government can leverage to conduct censorship on any material deemed ``inappropriate.'' However, on September 8, 2021, Apple ultimately decided to delay the rollout of this feature citing feedback from ``customers, advocacy groups, and researchers.'' No projected release date has been provided at the time of writing.
+
+Apple's CSAM detection system consists of two major components:
+
+\noindent \hangindent=\parindent 
+\emph{NeuralHash}: a perceptual hashing function for images based on neural networks and produces a ``fingerprint'' of the input. The algorithm passes the input image into a convolutional neural network to produce an $N$-dimensional floating point descriptor, which are hashed using Hyperplane LSH (Locality Sensitivity Hashing) to produce an $M$-bit value as the NeuralHash of the image. Unlike a standard cryptographic hash function (such as MD5 and the SHA family), NeuralHash is insensitive to small perturbations of the input image, such as cropping and pixel inversion. The publicly available reverse-engineered version of Apple's NeuralHash algorithm has been shown to not be collision resistant \cite{ygvarAppleNeuralHash2ONNX2021}. Apple claims a proprietary server-side algorithm is run to verify the results \cite{cox20201}.
+
+\noindent 
+\hangindent=\parindent 
+\emph{Threshold PSI}: The Private Set Intersection (PSI) system, proposed in \cite{bhowmick2021apple}, is constructed as follows: First, the database CSAM hashes is stored on the client's device.  The device generates a voucher for a client's input image that encodes a hash of the image and user's decryption key. The voucher is subsequently uploaded to iCloud (the server) to confirm the matching. Threshold secret sharing is leveraged to ensure the user's decryption key cannot be recovered without meeting some predefined ``threshold.'' If this threshold is crossed, Apple can retrieve the decryption key for the flagged user's photos, manually verify that they in fact CSAM images, and report the user to NCMEC. 
+
+
+
+
+The goal of this project is implement and verify Apple's protocol using open-source software and standard cryptographic libraries on a small-scale dataset. The paper is organized as follows: we formally introduce the problem and relevant notation in Section~\ref{sec:threshold_psi_with_associated_data}. Section~\ref{sec:building_blocks} contains the necessary cryptographic primitives for the complete protocol description in Section~\ref{sec:threshold_psi_ad_using_the_dh_random_self_reduction}. We describe and discussion our implementation in Section~\ref{sec:implementation_details}, and conclude in Section~\ref{sec:conclusion}
+
+% A basic overview of the system is shown in Figure~\ref{fig:proto}.
+
+% \begin{figure*}[t]
+% 	\centering
+% 	\includesvg[inkscapelatex=false,width=0.9\textwidth]{csam2}
+% 	\caption{Basic protocol functionality.}
+% 	\label{fig:proto}
+% \end{figure*}
+
+% and a technical summary is given in \cite{CSAMDetectionTechnical2021}. The following cryptographic tools are used in this system: 

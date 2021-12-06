@@ -5,5 +5,3 @@
 
 % section discussion (end)
 
-One of the major discrepancies with the system is how it handles duplicate hashes. The authors consider it a possibility for the existence of triples in $\Yb $ with the same hash $y$, provided they have different corresponding $id$'s. More specifically, it is valid for a $\Yb$ to contain the triples $t_i = \lp{y_i, id_i, ad_i}$ and $t_j \lp{y_i, id_j, ad_i}$ for $i \neq j$. 
-If a client submits a voucher derived from $t_j$ after previously submitting $t_i$, we are guaranteed to treat $t_j$ as unique match with a valid share of $adkey$, since $x$ is derived from $id$, namely $x = F(fkey,id)$. This implies a client inputting multiple copies of the same violating image on their device may exceed the threshold $t$ as if every picture was unique. This may be considered an acceptably property of the system, but is nonetheless worth noting.

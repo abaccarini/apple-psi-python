@@ -6,7 +6,7 @@
 
 We define the following cryptographic primitives and their respective constructions below:
 \begin{itemize}
-	\item $\lp{\enc, \dec}$ is a symmetric encryption scheme with  key space $\K'$ and provides IND-CPA security (see \cite{katz2014introduction} \textsection3.4.2) and \emph{random key robustness}, which states that if $k \neq k'$ are independent random keys, then $\dec(\enc(k,m), k')$ should fail with high probability. AES128-GCM satisfies both requirements.
+	\item $\lp{\enc, \dec}$ is a symmetric encryption scheme with  key space $\K'$ and provides IND-CPA security (see \cite{katz2014introduction} \textsection3.4.2 for the full definition) and \emph{random key robustness}, which states that if $k \neq k'$ are independent random keys, then $\dec(\enc(k,m), k')$ should fail with high probability. AES128-GCM satisfies both requirements.
 
 
 
@@ -16,22 +16,29 @@ We define the following cryptographic primitives and their respective constructi
 	\item $h : \U \to \lbr{1,\dots,\eta}$ is a random hash. This is implemented using  SHA256 and converting the output digest to an integer $\pmod \eta$.
 
 	\item $H' : \Gdh \to \K'$ is secure key derivation function; the uniform distribution on $\Gdh$ mapped to an ``almost'' uniform distribution on $\K'$. This is implemented using HKDF with SHA256 to produce a 128-bit key.
-	\item Shamir secret sharing on an element of $\K'$ to obtain shares in $\F_{\text{Sh}}$ for some field $\F_{\text{Sh}}$ that is sufficiently large such that when choosing $t+1$ random elements from $\F_{\text{Sh}}$, the probability of a collision is low.
+	\item Shamir secret sharing on an element of $\K'$ to obtain shares in $\F_{\text{Sh}}$ for some field $\F_{\text{Sh}}$ over a prime $\sh$; $\F_{\text{Sh}}$ must be  sufficiently large such that when choosing $t+1$ random elements from $\F_{\text{Sh}}$, the probability of a collision is low.
 
 	\item A pseudorandom function (PRF) $F : \K'' \times \mathcal{ID} \to \F_{\text{Sh}}$. This is also  constructed using HMAC with SHA256, and converting the output digest to an integer $\pmod \sh$.
 \end{itemize}
 
 
 
-\noindent \textbf{Diffie-Hellman Random Self Reducability}: 
-Let $ \G $ be a group of prime order $q$ with a fixed generator $G \in \G$, and suppose $\lp{L, U, V} \in \G^3$. Then triple $\lp{L,U,V}$ is a \textbf{Diffe-Hellman (DH) tuple} if there exists an $\alpha \in \F_q$ such that $L = G^\alpha$ and $V = U^\alpha$.
+\noindent \textbf{Diffie-Hellman Random Self Reducability}: We introduce a particularly useful property that the protocol relies upon as follows.
+\begin{definition}
+\label{def:dh_tup}
+ Let $ \G $ be a group of prime order $q$ with a fixed generator $G \in \G$, and suppose $\lp{L, U, V} \in \G^3$. Then triple $\lp{L,U,V}$ is a \textbf{Diffie-Hellman (DH) tuple} if there exists an $\alpha \in \F_q$ such that $L = G^\alpha$ and $V = U^\alpha$.
+ \end{definition} 
 \noindent
-We work through the arithmetic of a partial random self reduction for DH tuples as follows. Given a triple $\lp{L, T, P} \in \G^3$, we
+We work through the arithmetic of a partial random self reduction for DH tuples below. 
+\begin{definition}[DH self-reduction]
+Given a triple $\lp{L, T, P} \in \G^3$, we
 \begin{itemize}
 	\item choose a random $\beta, \gamma \in \F_q$,
 	\item compute $Q = T^\beta \cdot G^\gamma$ and $S = P^\beta \cdot L^\gamma$.
 	\item output $\lp{L,Q,S}$
 \end{itemize}
+\end{definition}
+\noindent
 The transformation $\lp{L, T, P} \to \lp{L, Q, S}$ has the following properties:
 \begin{itemize}
 	\item If $\lp{L, T, P}$ is a DH tuple where $L = G^\alpha$, then $Q$ is a fresh uniformly sampled element in $\G$, and 

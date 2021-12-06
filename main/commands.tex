@@ -9,14 +9,17 @@
 
 
 
-\newtheorem{theorem}{Theorem}[section]
+\newtheorem{theorem}{Theorem}
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}[theorem]{Lemma}
 
 
-% \theoremstyle{definition}
-\newtheorem{definition}{Definition}[section]
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
 \newtheorem{example}{Example}[section]
+
+\renewenvironment{proof}{\noindent{\emph{Proof Sketch}.}}{\hfill$\square$}
 
 
 \newcommand{\eq}{\Leftrightarrow}
@@ -59,6 +62,7 @@
 \newcommand{\I}{\mathcal{I}}
 \newcommand{\E}{\mathcal{E}}
 \newcommand{\ID}{\mathcal{ID}}
+\newcommand{\D}{\mathcal{D}}
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\U}{\mathcal{U}}
 \newcommand{\Z}{\mathbb{Z}}

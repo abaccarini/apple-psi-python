@@ -17,12 +17,17 @@ class Server:
         self.alpha = random.randint(1,dh_prime - 1)
         self.L = pow(self.G,self.alpha,self.dh_prime)
         
-        
         self.SHARES = []
         self.IDLIST = []
 
         for i, x_i,in enumerate(X):
             self.ht.add(x_i, i)
+        # ensuring every bucket has at most one item
+        for item in self.ht.array:
+            if item is  None or len(item) == 1:
+                pass
+            else:
+                print('bucket BAD -- INCRREASE TABLE SIZE')
         self.pdata = self.generate_pdata()
 
     def generate_pdata(self):

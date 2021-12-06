@@ -1,0 +1,457 @@
+\documentclass[xcolor=table,xcolor=dvipsnames]{beamer}
+
+\mode<presentation> {
+
+% The Beamer class comes with a number of default slide themes
+% which change the colors and layouts of slides. Below this is a list
+% of all the themes, uncomment each in turn to see what they look like.
+
+%\usetheme{default}
+%\usetheme{AnnArbor}
+%\usetheme{albatross}
+%\usetheme{Antibes}
+%\usetheme{Bergen}
+%\usetheme{Berkeley}
+%\usetheme{Berlin}
+%\usetheme{Boadilla}
+%\usetheme{CambridgeUS}
+%\usetheme{Copenhagen}
+%\usetheme{Darmstadt}
+%\usetheme{Dresden}
+%\usetheme{Frankfurt}
+%\usetheme{Goettingen}
+%\usetheme{Hannover}
+%\usetheme{Ilmenau}
+%\usetheme{JuanLesPins}
+%\usetheme{Luebeck}
+\usetheme{Madrid}
+%\usetheme{Malmoe}
+%\usetheme{Marburg}
+%\usetheme{Montpellier}
+%\usetheme{PaloAlto}
+%\usetheme{Pittsburgh}
+%\usetheme{Rochester}
+%\usetheme{Singapore}
+%\usetheme{Szeged}
+%\usetheme{Warsaw}
+
+% As well as themes, the Beamer class has a number of color themes
+% for any slide theme. Uncomment each of these in turn to see how it
+% changes the colors of your current slide theme.
+
+% \usecolortheme{dracula}
+%\usecolortheme{albatross}
+%\usecolortheme{beaver}
+%\usecolortheme{beetle}
+%\usecolortheme{crane}
+%\usecolortheme{dolphin}
+%\usecolortheme{dove}
+%\usecolortheme{fly}
+%\usecolortheme{lily}
+%\usecolortheme{orchid}
+%\usecolortheme{rose}
+%\usecolortheme{seagull}
+%\usecolortheme{seahorse}
+%\usecolortheme{whale}
+%\usecolortheme{wolverine}
+
+%\setbeamertemplate{footline} % To remove the footer line in all slides uncomment this line
+%\setbeamertemplate{footline}[page number] % To replace the footer line in all slides with a simple slide count uncomment this line
+
+%\setbeamertemplate{navigation symbols}{} % To remove the navigation symbols from the bottom of all slides uncomment this line
+}
+\setbeamertemplate{frametitle continuation}{}
+  \setbeamertemplate{enumerate items}[default]
+\setbeamertemplate{itemize items}{--}
+
+\setbeamercovered{invisible}
+\setbeamercovered{again covered={\opaqueness<1->{30}}}
+
+\input{packages.tex}
+
+\input{commands.tex}
+
+
+\newenvironment<>{varblock}[2][\textwidth]{%
+  \setlength{\textwidth}{#1}
+  \begin{actionenv}#3%
+    \def\insertblocktitle{#2}%
+    \par%
+    \usebeamertemplate{block begin}}
+  {\par%
+    \usebeamertemplate{block end}%
+  \end{actionenv}}
+
+\newenvironment<>{varexamp}[2][\textwidth]{%
+  \setlength{\textwidth}{#1}
+  \begin{actionenv}#3%
+    \def\insertblocktitle{#2}%
+    \par%
+    \usebeamertemplate{block example begin}}
+  {\par%
+    \usebeamertemplate{block example end}%
+  \end{actionenv}}
+
+
+
+
+
+\AtBeginSection[]{
+  \begin{frame}
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=8pt,center,shadow=true,rounded=true]{title}
+    \usebeamerfont{title}\insertsectionhead\par%
+  \end{beamercolorbox}
+  \vfill
+  \end{frame}
+}
+
+
+
+
+
+
+\title[The Apple PSI System]{The Apple PSI System \\\cite{bhowmick2021apple}
+} % The short title appears at the bottom of every slide, the full title is only on the title page
+
+\author[A. Baccarini]{Alessandro Baccarini} % Your name
+\institute[University at Buffalo] % Your institution as it will appear on the bottom of every slide, may be shorthand to save space
+{
+University at Buffalo \\ % Your institution for the title page
+\medskip
+\texttt{anbaccar@buffalo.edu} % Your email address
+}
+\date{\today} % Date, can be changed to a custom date
+
+\begin{document}
+
+\begin{frame}
+\titlepage % Print the title page as the first slide
+\end{frame}
+
+
+\begin{frame}[c]
+  \frametitle{Table of Contents}
+
+\tableofcontents  
+\end{frame}
+
+
+
+\section{Motivations} % (fold)
+\label{sec:motivations}
+
+\begin{frame}[c
+]
+  \frametitle{Why?}
+ \begin{itemize}
+    \item August 2021 -- Apple unveils plans for new Child Sexual Abuse Material (CSAM) detection system
+    \item Designed to automatically detect known CSAM images stored in iCloud, and report the users to National Center for Missing and Exploited Children (NCMEC) 
+    \item Aimed to be packaged with iOS 15 and iPadOS 15.
+    \item Very poorly received in media and tech communities.
+    \item September 2021 -- Apple postpones rollout indefinitely.
+  \end{itemize} 
+\end{frame}
+
+\begin{frame}[c
+]
+  \frametitle{What security goals do ``we'' want?}
+  \begin{itemize}
+  \item Apple cannot recover the user's photos without exceeding some threshold.
+  \item False positives are impossible.
+  \item No information is learned about non-matched images.
+  \item User cannot learn any information from the CSAM database.
+  \item The user cannot identify which images were flagged as CSAM by the system.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[t,fragile]
+  \frametitle{NeuralHash}
+  \begin{itemize}
+    \pause
+    \item Differs from our standard constructions of hash functions.
+    \pause
+    \item Insensitive to small perturbations.
+    \pause
+\begin{figure}[htbp]
+\only<4>{\includegraphics[width=0.95\textwidth]{nn_hash}}
+\end{figure}
+    \pause
+    \item Contains some ``issues'' \cite{athalyeNeuralHashCollider2021}...
+
+
+    \pause
+  \end{itemize}
+
+\begin{figure}[htbp]
+  % \centering
+  \only<6->{\raisebox{-.35\height}{\includegraphics[width=0.25\textwidth]{cat}} {\Huge{ $\stackrel{?}{=}$ }}}
+  \only<6->{\raisebox{-.35\height}{\includegraphics[width=0.25\textwidth]{dog}}}
+\end{figure}
+
+\pause
+{\small
+\begin{lstlisting}[language=Python,keywordstyle=\color{red}]
+    $ python nnhash.py cat.png
+    59a34eabe31910abfb06f308
+    $ python nnhash.py dog.png
+    59a34eabe31910abfb06f308
+\end{lstlisting}}
+\end{frame}
+
+\begin{frame}[c
+]
+  \frametitle{What is Private Set Intersection (PSI)?}
+  \begin{itemize}
+    \item Let $\U$ be the universe of all possible image hashes.
+    \item $X \of \U$ is set of image hashes we want to match against, stored on the server.
+    \item A client has a list of $m$ triples 
+    \begin{align*}
+      \bar{Y} = \lp{\lp{y_1, id_1, ad_1} , \dots   \lp{y_m, id_m, ad_m}} \in \lp{\U \times \ID \times \D}^m
+    \end{align*}
+    \item where $y \in \U$ is the hash of an image, a unique identifier $id \in \ID$, and some associated data $ad \in \D$.
+    \item When the protocol terminates, the server learns the identifiers and associated data of the intersection of $\bar{Y}$ and $X$, namely $id \lp{\bar{Y} \cap X}$
+
+  \end{itemize}
+\end{frame}
+
+
+\begin{frame}[c]
+  \frametitle{Two PSI Protocols}
+  
+  \begin{block}{Threshold PSI-AD}
+    Add a threshold parameter $t$, such that if $\norm{id \lp{\bar{Y} \cap X}} \leq t$, the server learns only the $id$'s. If $\norm{id \lp{\bar{Y} \cap X}} > t$, then the server learns the associated data for all identifiers in the intersection.
+  \end{block}
+\pause
+
+  \begin{block}{Fuzzy Threshold PSI-AD}<2>
+   Extension of prior scheme, but adds ``synthetic matches'' so the server does not know the number of matches in the intersection before the threshold $t$ is exceeded.
+  \end{block}
+  \pause
+\end{frame}
+
+
+\section{Protocol Description} % (fold)
+\label{sec:protocol_description}
+
+\begin{frame}[c
+]
+  \frametitle{Server Setup}
+  
+  \begin{enumerate}
+    \item Remove any duplicates from $X$, and let $n = \norm{X}$.
+    \item Construct a hash table $T$:
+    \begin{itemize}
+      \item Let $n' \geq n$ be the size of the table (minimize collisions).
+      \item Choose hash function $h : \U \to \lbr{1,\dots,n'}$ (SHA256 modulo $n'$).
+      \item Insert elements of $X$ into $T$.
+    \end{itemize}
+    \item Choose a random nonzero $\alpha \in \F_q$, compute $L = G^\alpha \in \G$, where $\G$ is a DH group modulo prime $p$ (2048-bit) with a fixed generator $G = 2$.
+    \item For $i = 1$ to $n'$. do:
+    \begin{itemize}
+      \item If $T[i]$ is non-empty, set $P_i = {H(T[i])^{\alpha}} \in \G$, where $T[i] \in X \of \U$, and $H: \U \to \G$ (SHA256 modulo $p$).
+      \item  If $T[i]$ is empty, choose a random $P_i \in \G$.
+    \end{itemize}
+    \item set $pdata = \lp{L, P_1, \dots, P_{n'}}$.
+  \end{enumerate}
+  
+\end{frame}
+
+
+
+\begin{frame}[c
+]
+  \frametitle{Client Setup}
+  \begin{enumerate}
+    \item Obtain $pdata$ from the server.
+    \item Generate keys:
+    \begin{itemize}
+      \item $adkey \gets \K'$ for  encryption scheme $\lp{\enc, \dec}$.
+      \begin{itemize}
+        \item We use AES128-GCM for its ``random key robustness'' property.
+        \item $Dec(Enc(k,m), k')$ should fail, where $k$ and $k'$ are independent random keys.
+      \end{itemize}
+      \item $fkey \gets \K''$ for the PRf $F: \K'' \times \ID \to \F_{\sh}$.
+      \item Initialize $(\eta, t)$-replicated secret sharing for $adkey$.
+    \end{itemize}
+  \end{enumerate}
+  
+  
+\end{frame}
+
+
+
+
+\begin{frame}[allowframebreaks]
+  \frametitle{Client Voucher Generation on Input Triple  $(y, id, ad)$}
+  \begin{enumerate}
+
+     \item Encrypt $ad$ as $adct \gets \enc \lp{adkey, ad},$ and all $adct$ must be the same length.
+     \item Compute $x = F(fkey, id) \in \F_{\sh}$.
+     \item Generate a share $sh \in \F_{\sh}$ of $adkey$, set $x$-coordinate of $sh$ to $x \in \F_{\sh}$ from the previous step.
+     \item Choose a random key $rkey \gets \K'$ and compute $rct \gets \enc \lp{rkey, \lp{adct, sh}}$.%concatenation?
+
+    \framebreak
+     \item Compute $w = h(y) \in \lbr{1,\dots,n'}$.
+     \item Sample random  $\beta, \gamma \in \F_q$, and use $P_w,L$ from $pdata$ to compute:
+     \begin{align*}
+     Q = H(y)^{\beta} \cdot G^{\gamma} \text{ and } S = P_w^{\beta} \cdot L^{\gamma},
+     \end{align*}
+     where if $y = T[w]$, then $P_w = H(y)^{\alpha}$ and $S = Q^{\alpha}$ (DH random self reduction).
+     \item Send $voucher = (id, Q, ct, rct)$ to the server.
+   \end{enumerate} 
+  
+\end{frame}
+
+
+\begin{frame}[allowframebreaks]
+  \frametitle{Server Voucher Processing}
+  \begin{enumerate}
+    \item Initialize empty set $SHARES$ and an empty list $IDLIST$.
+    \item For each voucher $(id, Q, ct, rct)$ received, do:
+    \begin{itemize}
+      \item Append $id$ to IDLIST.
+      \item Compute $\hat{S} = Q^{\alpha} \in \G$, 
+      \item Set $rkey = \dec (H'(\hat{S}), ct)$, where $H' : \G \to \K'$ (HKDF with SHA256).
+      \item Set $(adct, sh) = \dec (rkey, rct)$.
+      \item If either decryptions ``fails'', $y$ is a non-match, and ignore the voucher. 
+      \item Otherwise, we found a match and add $(id, adct, sh)$ to $SHARES$.
+    \end{itemize}
+
+    \framebreak
+    \item Let $t'$ denote the number of unique shares in $SHARES$, and $t'$ should equal the size of $id (\bar{Y} \cap X)$. 
+    \begin{itemize}
+      \item If $t' \leq t$, let $OUTSET$ be the set of identifiers in $SHARES$.
+      \item If $t' > t$, do:
+      \begin{itemize}
+        \item Use $(t+1)$ shares to reconstruct $adkey \in \K'$.
+        \item Initialize $OUTSET = \lbr{\emp}$
+        \item For each triple $(id, adct, sh) \in SHARES$, compute $ad = \dec (adkey, adct)$. If it fails, discard the voucher. Otherwise, add $(id,ad )$ to $OUTLIST$.
+      \end{itemize}
+      \item Output $IDLIST$ and $OUTSET$.
+    \end{itemize}
+  \end{enumerate}
+  
+\end{frame}
+
+\begin{frame}[c
+]
+  \frametitle{(Brief) Discussion}
+\begin{itemize}
+    \item Protocol is correct if the client and server adhere to the protocol (proof left as an exercise).
+    \item Using ``simpler'' constructions guarantees the same level of security as the original protocol (potentially at the cost of degraded performance).
+    \item Construction naturally extends to ftPSI-AD, requires novel primitives.
+    \begin{itemize}
+      \item Detectable hash functions
+    \end{itemize}
+  \end{itemize}  
+\end{frame}
+
+
+\section{Conclusions} % (fold)
+\label{sec:conclusions}
+
+
+\begin{frame}[c]
+  \frametitle{Conclusions}
+  \begin{itemize}
+    \pause
+    \item Presented Apple's PSI system for CSAM detection.
+    \pause
+    \item The protocol meets the security goals specified earlier.
+    \pause
+    \item So why is something like this still bad?
+    \pause
+    \item What are the implications of this system?
+  \end{itemize}
+   
+\end{frame}
+
+
+
+\begin{frame}[allowframebreaks]
+\frametitle{References} 
+\footnotesize{
+\bibliographystyle{apalike} 
+\bibliography{psi-refs} 
+}
+\end{frame}
+
+\begin{frame}[c]
+
+\begin{center}
+\Huge Thank you! \\ 
+\vspace{1.0em}
+\Large Questions?
+\end{center}
+\end{frame}
+
+\appendix 
+
+% \begin{frame}[c]
+%   \frametitle{Key Establishment}
+%   \begin{itemize}
+%     \pause
+%     \item Every protocol involves some form of key predistribution or establishment.
+%     \begin{itemize}
+%     \pause
+%       \item $O(\textcolor{red}{p} \cdot N)$ for interactive.
+%     \pause
+%       \item $O(N^2)$ for others.
+%     \pause
+%       \item One-off cost for bilinear or low-overhead.
+%     \end{itemize}
+
+%     \pause
+%     \item Key rotation:
+%     \begin{itemize}
+%     \pause
+%       \item Needed for forward secrecy or adding/removing meters from groups.
+%     \pause
+%       \item $O(N)$ messages.
+%     \end{itemize}
+%   \end{itemize}
+% \end{frame}
+
+
+
+
+% \begin{frame}[c]
+%   \frametitle{Group Management}
+%   \begin{itemize}
+%     \pause
+%     \item Security of protocols depends on meter group constructions.
+%     \pause
+%   \item Energy industry responsible for specifying meter groups.
+%     \pause
+%     \item Participants can independently audit the group construction. %see if they were tricked into participating in compromised groups
+%     \pause
+%     \item Opting out is possible...
+%     \begin{itemize}
+%     \pause
+%       \item ... At the cost of being more vulnerable.
+%     \end{itemize}
+%   \end{itemize}
+% \end{frame}
+
+
+
+
+% \begin{frame}[c]
+%   \frametitle{Conversion from Comparison Back to Aggregation}
+%  \begin{itemize}
+%     \pause
+%     \item Comparison protocols require aggregator to know approximate value.
+%     \pause
+%     \item For a group with 250 meters, can easily brute-force $<40$-bit values (push to backend).
+%     \pause
+%     \item Can split measurement into high and low component, report results individually.
+%     \pause
+%     \item If groups/meters get too large, just segment into subgroups.
+%   \end{itemize} 
+  
+% \end{frame}
+
+
+\end{document} 

@@ -1,0 +1,20 @@
+\begin{thebibliography}{}
+
+\bibitem[Athalye, 2021]{athalyeNeuralHashCollider2021}
+Athalye, A. (2021).
+\newblock {NeuralHash} {Collider}.
+\newblock \url{https://github.com/anishathalye/neural-hash-collider}.
+\newblock original-date: 2021-08-19T00:06:20Z.
+
+\bibitem[Bhowmick et~al., 2021]{bhowmick2021apple}
+Bhowmick, A., Boneh, D., Myers, S., and Tarbe, K. T.~K. (2021).
+\newblock The {Apple} {PSI} {System}.
+\newblock
+  \url{https://www.apple.com/child-safety/pdf/Apple_PSI_System_Security_Protocol_and_Analysis.pdf}.
+
+\bibitem[Struppek et~al., 2021]{struppek2021learning}
+Struppek, L., Hintersdorf, D., Neider, D., and Kersting, K. (2021).
+\newblock Learning to break deep perceptual hashing: The use case neuralhash.
+\newblock {\em arXiv preprint arXiv:2111.06628}.
+
+\end{thebibliography}

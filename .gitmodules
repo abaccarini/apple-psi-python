@@ -1,0 +1,3 @@
+[submodule "src/diffiehellman"]
+	path = src/diffiehellman
+	url = https://github.com/chrisvoncsefalvay/diffiehellman.git

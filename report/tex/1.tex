@@ -14,7 +14,7 @@ Apple's CSAM detection system consists of two major components:
 
 \noindent 
 \hangindent=\parindent 
-\emph{Threshold PSI}: The Private Set Intersection (PSI) system, proposed in \cite{bhowmick2021apple}, is constructed as follows: First, the database CSAM hashes is stored on the client's device.  The device generates a voucher for a client's input image that encodes a hash of the image and user's decryption key. The voucher is subsequently uploaded to iCloud (the server) to confirm the matching. Threshold secret sharing is leveraged to ensure the user's decryption key cannot be recovered without meeting some predefined ``threshold.'' If this threshold is crossed, Apple can retrieve the decryption key for the flagged user's photos, manually verify that they in fact CSAM images, and report the user to NCMEC. 
+\emph{Threshold PSI}: The Private Set Intersection (PSI) system, proposed in \cite{bhowmick2021apple}, is constructed as follows: First, the database CSAM hashes is stored on the client's device.  The device generates a voucher for a client's input image that encodes a hash of the image and user's decryption key. The voucher is subsequently uploaded to iCloud (the server) to confirm the matching. Threshold secret sharing is leveraged to ensure the user's decryption key cannot be recovered without meeting some predefined ``threshold.'' If this threshold is crossed, Apple can retrieve the decryption key for the flagged user's photos, manually verify that they are in fact CSAM images, and report the user to NCMEC. 
 
 
 

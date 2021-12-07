@@ -7,4 +7,6 @@
 *.out
 *.synctex.gz
 *.pyc
+*.DS_Store
 __pycache__/*
+final/*

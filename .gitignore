@@ -10,3 +10,5 @@
 *.DS_Store
 __pycache__/*
 final/*
+update/*
+proposal/*

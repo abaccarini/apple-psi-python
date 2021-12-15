@@ -18,3 +18,5 @@ update/*
 proposal/*
 *.xopp
 *.xopp~
+papers/[Jonathan_Katz,_Yehuda_Lindell]_Introduction_to_Mo(z-lib.org).pdf
+.gitignore

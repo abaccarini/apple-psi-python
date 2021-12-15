@@ -4,6 +4,10 @@
 *.fdb_latexmk
 *.fls
 *.log
+*.toc
+*.nav
+*.snm
+*.vrb
 *.out
 *.synctex.gz
 *.pyc
